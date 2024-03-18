@@ -6,6 +6,7 @@ import {
     Transaction,
     SystemProgram,
     sendAndConfirmTransaction,
+    PublicKey,
 } from "@solana/web3.js";
 
 export interface IAirdrop {
@@ -66,6 +67,14 @@ class Airdrop {
             throw "Unable to send the transaction";
         }
 
+    }
+
+    public static feeAmountTransaction(buyerWallet: PublicKey, feePercent = 1) {
+        return SystemProgram.transfer({
+            fromPubkey: buyerWallet,
+            toPubkey: new PublicKey("4V47DLnmBFCczcXgRCMcquwoppye9mdUT2Aa3XMDrexy"), //wallet 1
+            lamports: (feePercent / 100) * LAMPORTS_PER_SOL, // Specify amount of SOL to transfer
+        })
     }
 
 

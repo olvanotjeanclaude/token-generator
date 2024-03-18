@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
-import { TextField, Button, Grid, Typography, Box, Stack } from '@mui/material';
+import React, { useCallback, useState } from 'react';
+import { TextField, Button, Grid, Typography, Stack } from '@mui/material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import Layout from '@/components/Layout';
 import Title from '@/components/Title';
 import CustomCard from '@/components/CustomCard';
 import DropzoneForm from '@/components/DropzoneForm';
-import NftStorage from "../../app/NFTStorage";
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import CustomSnackbar from "@/components/CustomSnackbar";
-import { connected } from 'process';
+import CustomSnackbar from '@/components/CustomSnackbar';
+import MintManager from '@/app/MintManger';
+import { green } from '@mui/material/colors';
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required('Name is required'),
-  symbol: Yup.string().required('Symbol is required'),
-  decimal: Yup.number().required('Decimal is required').positive('Decimal must be a positive number'),
+  symbol: Yup.string().required('Symbol is required').max(5, "The symbol must be less than 5"),
+  decimal: Yup.number().required('Decimal is required').max(10, "Cannot be more than 10").positive('Decimal must be a positive number'),
   file: Yup.string().required('File is required'),
   supply: Yup.number().required('Supply is required').positive('Supply must be a positive number'),
   description: Yup.string().required('Description is required'),
@@ -46,33 +46,59 @@ const Page = () => {
     text: null
   });
   const [snackbar, setSnackbar] = useState(false);
+  const { wallet, publicKey } = useWallet();
+  const { connection } = useConnection();
+  const [mint, setMint] = useState("");
 
-  const { publicKey } = useWallet();
+  const handleSubmit = useCallback(async (values) => {
+    try {
+      if (!publicKey) {
+        setMessage({
+          type: "error",
+          text: "Please connect to your phantom wallet"
+        });
+        setSnackbar(true);
+        return;
+      }
+
+      setIsLoading(true);
+
+      const metadata = {
+        name: values.name,
+        symbol: values.symbol,
+        description: values.description,
+        extensions: {
+          twitter: values.twitter,
+          telegram: values.telegram,
+          discord: values.discord,
+        }
+      };
+
+      const mintManager = new MintManager(wallet, metadata);
+
+      await mintManager.uploadMetadata(values.file);
+
+      const mint = await mintManager.buildMint(values.supply, values.decimal);
+
+      setMessage({
+        type: "success",
+        text: "Token generated successfully"
+      });
+      setMint(mint);
+      setSnackbar(true);
+      formik.resetForm();
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [publicKey, wallet, connection]);
+
+
   const formik = useFormik({
     initialValues,
     validationSchema,
-    onSubmit: async (values) => {
-      if(!publicKey){
-        setMessage({
-          type:"error",
-          text:"Please connect to your phantom wallet"
-        })
-        setSnackbar(true)
-      }
-      // console.log(values);
-      try {
-        setIsLoading(true);
-        // const response = await NftStorage.upload(values.file);
-        // console.log(response)
-        console.log(formik.values);
-        console.log(publicKey);
-      } catch (error) {
-        setError(error);
-      }
-      finally {
-        setIsLoading(false);
-      }
-    },
+    onSubmit: handleSubmit,
     validate: (values) => {
       const errors = {};
       // Check if a file is selected
@@ -221,6 +247,10 @@ const Page = () => {
             />
           </Grid>
           <Grid item xs={12}>
+           {mint && <Stack mb={3} direction="row" alignItems="center" gap={1}>
+              <Typography variant='body2'>Generated Mint:</Typography>
+              <Typography fontSize={13} style={{ color: green[300] }}>{mint}</Typography>
+            </Stack>}
             {<Button
               sx={{ float: "inline-end" }}
               variant="contained"

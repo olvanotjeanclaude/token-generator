@@ -1,28 +1,42 @@
 import axios from "axios";
+import { IMetadata } from "./MintManger";
 
 
 
 class NFTStorage {
-    public static upload(file: Blob) {
+    public async upload(file: Blob): Promise<string> {
         const baseUrl = "https://api.nft.storage";
-        const response = axios.create({
+        return axios.post(`${baseUrl}/upload`, file, {
             headers: {
                 Authorization: `Bearer ${process.env.NEXT_PUBLIC_NFT_STORAGE_KEY}`
             }
-        })
-            .post(`${baseUrl}/upload`, file)
-            .then(res => {
-                const data = res.data.value;
+        }).then(response => {
+            const data = response.data.value;
+            const imageUrl = `https://nftstorage.link/ipfs/${data.cid}`;
+            return imageUrl;
+        }).catch(error => {
+            throw new Error('Unable to upload file');
+        });
+    }
 
-                return {
-                    cid: data.cid
-                };
+
+    public async createAndUploadMetadata(imageFile: Blob, formMetadata: IMetadata): Promise<string> {
+        return await this.upload(imageFile)
+            .then(image => {
+                const metadata = { ...formMetadata, image };
+
+                console.log('Image uploaded to NFT.Storage:', image);
+
+                return this.upload(new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
             })
-            .catch(e => {
-                throw "Unable to upload file"
-            });
+            .then(metadataUrl => {
+                console.log('Metadata uploaded to NFT.Storage:', metadataUrl);
 
-        return response;
+                return metadataUrl;
+            })
+            .catch(error => {
+                throw "Error uploading to NFT.Storage";
+            });
     }
 }
 

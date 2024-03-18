@@ -36,9 +36,7 @@ export default function SolanaButton() {
 
     return (
         <Box display="flex" alignItems="center" gap={2} justifyContent="end">
-            <Typography>
-                {publicKey && connected ? `Balance: ${(balance / LAMPORTS_PER_SOL).toFixed(4)} SOL` : ""}
-            </Typography>
+            <Typography>nenaka: </Typography>
             <WalletMultiButtonDynamic />
         </Box>
     )

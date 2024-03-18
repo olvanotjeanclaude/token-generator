@@ -5,6 +5,9 @@ import * as Yup from 'yup';
 import Layout from '@/components/Layout';
 import Title from "@/components/Title";
 import CustomCard from '@/components/CustomCard';
+import TokenManager from '@/app/TokenManager';
+import { PublicKey } from '@solana/web3.js';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 const validationSchema = Yup.object().shape({
   address: Yup.string().required('Address is required'),
@@ -17,12 +20,16 @@ const initialValues = {
 };
 
 const TokenMintForm = () => {
+  const {publicKey} = useWallet();
   const formik = useFormik({
     initialValues,
     validationSchema,
-    onSubmit: (values) => {
-      console.log(values);
+    onSubmit: async(values) => {
+      // console.log(values);
+      const mint = new PublicKey("3if7dT9tdJUTHNNwG8U6JPPYkAGsrrNmcWtDNp2bzzZe");
+      const tokenManager = new TokenManager(mint)
       // Handle form submission here
+      console.log(await tokenManager.getAssociatedTokenAccount(publicKey))
     },
   });
 
