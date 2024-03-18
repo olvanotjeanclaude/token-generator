@@ -1,16 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TextField, Button, Grid, Typography, Box, Stack } from '@mui/material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import Layout from '@/components/Layout';
 import Title from '@/components/Title';
 import CustomCard from '@/components/CustomCard';
+import DropzoneForm from '@/components/DropzoneForm';
+import NftStorage from "../../app/NFTStorage";
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import CustomSnackbar from "@/components/CustomSnackbar";
+import { connected } from 'process';
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required('Name is required'),
   symbol: Yup.string().required('Symbol is required'),
   decimal: Yup.number().required('Decimal is required').positive('Decimal must be a positive number'),
-  image: Yup.string().required('Image URL is required'),
+  file: Yup.string().required('File is required'),
   supply: Yup.number().required('Supply is required').positive('Supply must be a positive number'),
   description: Yup.string().required('Description is required'),
   website: Yup.string().url('Invalid URL').required('Website URL is required'),
@@ -23,23 +28,64 @@ const initialValues = {
   name: '',
   symbol: '',
   decimal: '',
-  image: '',
   supply: '',
   description: '',
   website: '',
   twitter: '',
   telegram: '',
   discord: '',
+  file: null
 };
 
+
 const Page = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState({
+    type: null,
+    text: null
+  });
+  const [snackbar, setSnackbar] = useState(false);
+
+  const { publicKey } = useWallet();
   const formik = useFormik({
     initialValues,
     validationSchema,
-    onSubmit: (values) => {
-      console.log(values);
-      // You can handle form submission here
+    onSubmit: async (values) => {
+      if(!publicKey){
+        setMessage({
+          type:"error",
+          text:"Please connect to your phantom wallet"
+        })
+        setSnackbar(true)
+      }
+      // console.log(values);
+      try {
+        setIsLoading(true);
+        // const response = await NftStorage.upload(values.file);
+        // console.log(response)
+        console.log(formik.values);
+        console.log(publicKey);
+      } catch (error) {
+        setError(error);
+      }
+      finally {
+        setIsLoading(false);
+      }
     },
+    validate: (values) => {
+      const errors = {};
+      // Check if a file is selected
+      if (!values.file) {
+        errors.file = 'Please select a file';
+      }
+
+      if (values.file && !['image/jpeg', 'image/png'].includes(values.file.type)) {
+        errors.file = 'File type must be JPEG or PNG';
+      }
+
+      return errors
+    }
   });
 
   return (
@@ -47,7 +93,7 @@ const Page = () => {
       <Title title="Token Generator" />
       <Stack component="form" autoComplete='off' onSubmit={formik.handleSubmit}>
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item xs={12} sm={7}>
             <TextField
               fullWidth
               id="name"
@@ -59,7 +105,7 @@ const Page = () => {
               helperText={formik.touched.name && formik.errors.name}
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item xs={12} sm={5}>
             <TextField
               fullWidth
               id="symbol"
@@ -71,41 +117,40 @@ const Page = () => {
               helperText={formik.touched.symbol && formik.errors.symbol}
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              fullWidth
-              id="decimal"
-              name="decimal"
-              label="Decimal"
-              value={formik.values.decimal}
-              onChange={formik.handleChange}
-              error={formik.touched.decimal && Boolean(formik.errors.decimal)}
-              helperText={formik.touched.decimal && formik.errors.decimal}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              id="image"
-              name="image"
-              label="Image URL"
-              value={formik.values.image}
-              onChange={formik.handleChange}
-              error={formik.touched.image && Boolean(formik.errors.image)}
-              helperText={formik.touched.image && formik.errors.image}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              id="supply"
-              name="supply"
-              label="Supply"
-              value={formik.values.supply}
-              onChange={formik.handleChange}
-              error={formik.touched.supply && Boolean(formik.errors.supply)}
-              helperText={formik.touched.supply && formik.errors.supply}
-            />
+
+          <Grid item xs={12}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={5} lg={7}>
+                <Stack gap={2}>
+                  <TextField
+                    fullWidth
+                    type='number'
+                    id="decimal"
+                    name="decimal"
+                    label="Decimal"
+                    value={formik.values.decimal}
+                    onChange={formik.handleChange}
+                    error={formik.touched.decimal && Boolean(formik.errors.decimal)}
+                    helperText={formik.touched.decimal && formik.errors.decimal}
+                  />
+
+                  <TextField
+                    fullWidth
+                    type='number'
+                    id="supply"
+                    name="supply"
+                    label="Supply"
+                    value={formik.values.supply}
+                    onChange={formik.handleChange}
+                    error={formik.touched.supply && Boolean(formik.errors.supply)}
+                    helperText={formik.touched.supply && formik.errors.supply}
+                  />
+                </Stack>
+              </Grid>
+              <Grid item xs={12} sm={7} lg={5}>
+                <DropzoneForm formik={formik} />
+              </Grid>
+            </Grid>
           </Grid>
           <Grid item xs={12}>
             <TextField
@@ -128,6 +173,7 @@ const Page = () => {
               fullWidth
               id="website"
               name="website"
+              type='url'
               label="Website URL"
               value={formik.values.website}
               onChange={formik.handleChange}
@@ -139,6 +185,7 @@ const Page = () => {
             <TextField
               fullWidth
               id="twitter"
+              type='url'
               name="twitter"
               label="Twitter URL"
               value={formik.values.twitter}
@@ -151,6 +198,7 @@ const Page = () => {
             <TextField
               fullWidth
               id="telegram"
+              type='url'
               name="telegram"
               label="Telegram URL"
               value={formik.values.telegram}
@@ -164,6 +212,7 @@ const Page = () => {
               fullWidth
               id="discord"
               name="discord"
+              type='url'
               label="Discord URL"
               value={formik.values.discord}
               onChange={formik.handleChange}
@@ -172,17 +221,28 @@ const Page = () => {
             />
           </Grid>
           <Grid item xs={12}>
-            <Button sx={{ float: "inline-end" }} variant="contained" color="primary" type="submit">
+            {<Button
+              sx={{ float: "inline-end" }}
+              variant="contained"
+              disabled={isLoading}
+              color="primary"
+              type="submit">
               Generate Token
-            </Button>
+            </Button>}
           </Grid>
         </Grid>
+
+        <CustomSnackbar
+          open={snackbar}
+          setOpen={setSnackbar}
+          message={message}
+        />
       </Stack>
     </>
   );
 };
 
-Page.getLayout = (page: any) => {
+Page.getLayout = (page) => {
   return <Layout title="Token Generator">
     <CustomCard>
       {page}

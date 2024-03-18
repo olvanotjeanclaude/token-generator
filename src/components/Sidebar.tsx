@@ -1,11 +1,11 @@
 import { ButtonBase, Stack, Typography } from '@mui/material'
 import React from 'react'
-import routes from "@/routes";
 import Link from 'next/link';
+import routes from "@/routes";
 
 export default function Sidebar() {
     return (
-        <Stack display={{xs:"none", sm:"flex"}} gap={1.5} minWidth={185} pr={1}>
+        <Stack display={{ xs: "none", sm: "flex" }} gap={1.5} minWidth={185} pr={1}>
             <Typography variant='h4'>
                 Home
             </Typography>

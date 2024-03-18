@@ -19,6 +19,10 @@ const routes = [
         title: "Token Metadata",
         path: "/token-metadata"
     },
+    // {
+    //     title: "Sol Airdrop",
+    //     path: "/sol-airdrop"
+    // },
     //  {
     //     title: "Liquidity Pool",
     //     path: "/liquidity-pool"
