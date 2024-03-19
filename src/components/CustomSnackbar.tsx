@@ -19,7 +19,7 @@ export default function CustomSnackbar({
                 onClose={() => setOpen(false)}
                 severity={message.type}
                 variant="filled"
-                sx={{ width: '100%' }}
+                sx={{ width: '100%',color:"#fff" }}
             >
                 {message.text}
             </Alert>

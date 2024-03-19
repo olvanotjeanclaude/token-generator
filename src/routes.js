@@ -3,6 +3,10 @@ const routes = [
         title: "Token Creator",
         path: "/token-creator",
     },
+    // {
+    //     title: "Token Transfer",
+    //     path: "/token-transfer"
+    // },
     {
         title: "Mint Token",
         path: "/mint-token"

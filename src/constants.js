@@ -11,7 +11,11 @@ export const connection = new Connection(CLUSTER_URL, "confirmed");
 
 export function logger(signature) {
     console.log(`Transaction Id: ${signature}`);
-    console.log(`https://explorer.solana.com/address/${signature}?cluster=${CLUSTER}`)
+    console.log(`https://explorer.solana.com/tx/${signature}?cluster=${CLUSTER}`)
+}
+
+export function signatureLink(signature) {
+    return `https://explorer.solana.com/tx/${signature}?cluster=${CLUSTER}`;
 }
 
 export const customColor = {

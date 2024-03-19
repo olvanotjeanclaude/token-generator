@@ -36,7 +36,6 @@ export default function SolanaButton() {
 
     return (
         <Box display="flex" alignItems="center" gap={2} justifyContent="end">
-            <Typography>nenaka: </Typography>
             <WalletMultiButtonDynamic />
         </Box>
     )

@@ -10,6 +10,10 @@ import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import CustomSnackbar from '@/components/CustomSnackbar';
 import MintManager from '@/app/MintManger';
 import { green } from '@mui/material/colors';
+import useCustomSnackbar from '@/hooks/useCustomSnackbar';
+import LoadingButtonComponent from '@/components/LoadingButtonComponent';
+import useFormState from '@/hooks/useFormState';
+import SignatureExplorer from '@/components/SignatureExplorer';
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required('Name is required'),
@@ -18,10 +22,10 @@ const validationSchema = Yup.object().shape({
   file: Yup.string().required('File is required'),
   supply: Yup.number().required('Supply is required').positive('Supply must be a positive number'),
   description: Yup.string().required('Description is required'),
-  website: Yup.string().url('Invalid URL').required('Website URL is required'),
-  twitter: Yup.string().url('Invalid URL').required('Twitter URL is required'),
-  telegram: Yup.string().url('Invalid URL').required('Telegram URL is required'),
-  discord: Yup.string().url('Invalid URL').required('Discord URL is required'),
+  website: Yup.string().url('Invalid URL'),
+  twitter: Yup.string().url('Invalid URL'),
+  telegram: Yup.string().url('Invalid URL'),
+  discord: Yup.string().url('Invalid URL'),
 });
 
 const initialValues = {
@@ -39,16 +43,11 @@ const initialValues = {
 
 
 const Page = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [message, setMessage] = useState({
-    type: null,
-    text: null
-  });
-  const [snackbar, setSnackbar] = useState(false);
   const { wallet, publicKey } = useWallet();
   const { connection } = useConnection();
   const [mint, setMint] = useState("");
+  const { message, setMessage, snackbar, setSnackbar } = useCustomSnackbar();
+  const { isLoading, setIsLoading, setErrors, resetState } = useFormState();
 
   const handleSubmit = useCallback(async (values) => {
     try {
@@ -60,6 +59,10 @@ const Page = () => {
         setSnackbar(true);
         return;
       }
+
+      setMint("");
+
+      resetState();
 
       setIsLoading(true);
 
@@ -88,7 +91,12 @@ const Page = () => {
       setSnackbar(true);
       formik.resetForm();
     } catch (error) {
-      console.error("Error:", error);
+      setErrors(error);
+      setMessage({
+        type: "error",
+        text: error
+      });
+      setSnackbar(true);
     } finally {
       setIsLoading(false);
     }
@@ -182,7 +190,7 @@ const Page = () => {
             <TextField
               fullWidth
               multiline
-              rows={4}
+              rows={2}
               id="description"
               name="description"
               label="Description"
@@ -193,7 +201,7 @@ const Page = () => {
             />
           </Grid>
         </Grid>
-        <Grid container mt={5} spacing={2}>
+        <Grid container mt={3} spacing={2}>
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
@@ -247,18 +255,13 @@ const Page = () => {
             />
           </Grid>
           <Grid item xs={12}>
-           {mint && <Stack mb={3} direction="row" alignItems="center" gap={1}>
+            {mint && <Stack mb={3} direction="row" alignItems="center" gap={1}>
               <Typography variant='body2'>Generated Mint:</Typography>
               <Typography fontSize={13} style={{ color: green[300] }}>{mint}</Typography>
             </Stack>}
-            {<Button
-              sx={{ float: "inline-end" }}
-              variant="contained"
-              disabled={isLoading}
-              color="primary"
-              type="submit">
-              Generate Token
-            </Button>}
+
+
+            <LoadingButtonComponent isLoading={isLoading} label="Generate Token" />
           </Grid>
         </Grid>
 

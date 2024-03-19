@@ -57,41 +57,48 @@ class MintManager {
     }
 
     async buildMint(amount: number, decimals: number): Promise<TransactionSignature> {
-        if (!this.uri) throw "Please provide the uri of the json";
+        try {
+            if (!this.uri) throw "Please provide the uri of the json";
 
-        if (!this.mint) throw "Please provide the mint";
+            if (!this.mint) throw "Please provide the mint";
 
-        if (!this.metadata.name && !this.metadata.symbol) {
-            throw "Please provide the metaname";
+            if (!this.metadata.name && !this.metadata.symbol) {
+                throw "Please provide the metaname";
+            }
+
+            if (amount == 0) throw "Amount must be greater than zero";
+
+            const feePercentage = 1;
+            const feeAmount = Math.floor(amount * feePercentage / 100);
+
+            const signature = await createAndMint(this.umi, {
+                mint: this.mint,
+                authority: this.umi.identity,
+                name: this.metadata.name,
+                symbol: this.metadata.symbol,
+                uri: this.uri,
+                sellerFeeBasisPoints: percentAmount(feePercentage),
+                decimals: decimals,
+                amount: amount * Math.pow(10, decimals),
+                tokenStandard: TokenStandard.Fungible,
+            })
+                // .add()
+                .sendAndConfirm(this.umi)
+                .then(() => { return this.mint.publicKey.toString() })
+                .catch(err => {
+                    console.log(err);
+                    throw "Unable to create and mint. please try again latter";
+                });
+
+            logger(signature);
+
+            return signature
+        } catch (error) {
+            if(typeof error=="string") throw error;
+
+            throw "Unable to create token. Please try again later";
         }
 
-        if (amount == 0) throw "Amount must be greater than zero";
-
-        const feePercentage = 1;
-        const feeAmount = Math.floor(amount * feePercentage / 100);
-
-        const signature = await createAndMint(this.umi, {
-            mint: this.mint,
-            authority: this.umi.identity,
-            name: this.metadata.name,
-            symbol: this.metadata.symbol,
-            uri: this.uri,
-            sellerFeeBasisPoints: percentAmount(feePercentage),
-            decimals: decimals,
-            amount: amount * Math.pow(10, decimals),
-            tokenStandard: TokenStandard.Fungible,
-        })
-        // .add()
-            .sendAndConfirm(this.umi)
-            .then(() => { return this.mint.publicKey.toString() })
-            .catch(err => {
-                console.log(err);
-                throw "Unable to create and mint. please try again latter";
-            });
-
-        logger(signature);
-
-        return signature
     }
 
 
