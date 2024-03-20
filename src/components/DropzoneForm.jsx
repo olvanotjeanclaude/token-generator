@@ -35,6 +35,10 @@ export default function DropzoneForm({ formik }) {
     <>
       <Box
         sx={{
+          display:"flex",
+          justifyContent:"center",
+          alignItems:"center",
+          px:2,
           border: "1px dashed #ccc",
           minHeight: 110,
           maxHeight: 110,
@@ -43,7 +47,7 @@ export default function DropzoneForm({ formik }) {
         p={1}
         {...rootProps}
       >
-        <Stack alignItems="center" p={1} justifyContent="center">
+        <Stack>
           <input {...getInputProps()} value={formik.values.file ?? ""} type='image/*' />
           {!filePreview ? (
             <Typography textAlign="center">Drag and drop an image here, or click to select an image file</Typography>

@@ -4,7 +4,6 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import Layout from '@/components/Layout';
 import Title from "@/components/Title";
-import CustomCard from '@/components/CustomCard';
 import TokenManager from '@/app/TokenManager';
 import { PublicKey } from '@solana/web3.js';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -110,9 +109,7 @@ const TokenMintPage = () => {
   return (
     <Layout title="Token Minting">
       <Title title="Token Minting" />
-      <CustomCard>
         <TokenMintForm />
-      </CustomCard>
     </Layout>
   );
 };

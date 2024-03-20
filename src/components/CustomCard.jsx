@@ -3,7 +3,7 @@ import React from 'react'
 
 export default function CustomCard({ children }) {
     return (
-        <Box>
+        <Box bgcolor="#17233A">
             {children}
         </Box>
     )

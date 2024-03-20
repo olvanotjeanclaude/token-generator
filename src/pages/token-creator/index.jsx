@@ -4,7 +4,6 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import Layout from '@/components/Layout';
 import Title from '@/components/Title';
-import CustomCard from '@/components/CustomCard';
 import DropzoneForm from '@/components/DropzoneForm';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import CustomSnackbar from '@/components/CustomSnackbar';
@@ -277,9 +276,7 @@ const Page = () => {
 
 Page.getLayout = (page) => {
   return <Layout title="Token Generator">
-    <CustomCard>
       {page}
-    </CustomCard>
   </Layout>
 }
 

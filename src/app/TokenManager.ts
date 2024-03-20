@@ -1,9 +1,18 @@
 import { CLUSTER_URL } from "@/constants";
-import { Account, MINT_SIZE, TOKEN_PROGRAM_ID, TokenAccountNotFoundError, TokenInvalidAccountOwnerError, createAssociatedTokenAccountInstruction, createInitializeMintInstruction, createMintToInstruction, createTransferInstruction, getAccount, getAssociatedTokenAddress, getAssociatedTokenAddressSync, getMinimumBalanceForRentExemptMint, getMint, getOrCreateAssociatedTokenAccount, mintTo, transfer } from "@solana/spl-token";
-import { Wallet, useWallet } from "@solana/wallet-adapter-react";
-import { Connection, Keypair, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+import { Account, MINT_SIZE, TOKEN_PROGRAM_ID, createAssociatedTokenAccountInstruction, createInitializeMintInstruction, createMintToInstruction, createTransferInstruction, getAccount, getAssociatedTokenAddress, getAssociatedTokenAddressSync, getMinimumBalanceForRentExemptMint, getMint, getOrCreateAssociatedTokenAccount, mintTo, transfer } from "@solana/spl-token";
+import { Wallet } from "@solana/wallet-adapter-react";
+import { Connection, Keypair, PublicKey, SystemProgram, Transaction, TransactionSignature } from "@solana/web3.js";
 import pRetry from "p-retry";
 
+interface IMultiSender {
+    address: string,
+    amount: number
+}
+
+interface ITokenTransfer {
+    account: Account,
+    amount: number
+}
 
 class TokenManager {
     private mint: PublicKey;
@@ -103,9 +112,9 @@ class TokenManager {
             transaction,
             this.connection,
         ).catch(error => {
-          console.log(error);
-           
-          throw error?.message
+            console.log(error);
+
+            throw error?.message
         });
 
         return signature;
@@ -160,6 +169,94 @@ class TokenManager {
         console.log({ mint: mintKeypair.publicKey.toBase58() })
 
         return mintKeypair
+    }
+
+    public async sendMultiple(destinations: Array<IMultiSender>): Promise<TransactionSignature> {
+        if (!this.mint) throw new Error("Mint not yet created");
+        if (!this.wallet.adapter.publicKey) throw "NO WALLET";
+
+        if (destinations.length === 0) throw new Error("No valid destination found");
+
+        const payer = new PublicKey(this.wallet.adapter.publicKey.toBase58());
+
+        const transfers = await this.getAssociatedTokenAccounts(destinations);
+
+        const fromTokenAccount = await this.getAssociatedTokenAccount(payer);
+
+        // console.log({transfers,fromTokenAccount});
+      
+        const transaction = new Transaction();
+
+        transfers.map(transfer => {
+            const toTokenAccount = transfer.account;
+           
+            transaction.add(
+                createTransferInstruction(
+                    fromTokenAccount.address,
+                    toTokenAccount.address,
+                    payer,
+                    transfer.amount,
+                )
+            )
+        })
+
+        const signature = await this.wallet.adapter.sendTransaction(
+            transaction,
+            this.connection,
+        );
+
+        return signature;
+    }
+
+    public async getAssociatedTokenAccounts(destinations: IMultiSender[]): Promise<ITokenTransfer[]> {
+        if (!this.wallet.adapter.publicKey) throw "NO WALLET";
+
+        const mint = new PublicKey(this.mint);
+        const payer = new PublicKey(this.wallet.adapter.publicKey.toBase58());
+
+        const transfers: ITokenTransfer[] = [];
+
+        const transaction = new Transaction();
+
+        for (const destination of destinations) {
+            const publicKey = new PublicKey(destination.address);
+            const associatedToken = getAssociatedTokenAddressSync(mint, publicKey);
+
+            try {
+                const account = await getAccount(this.connection, associatedToken);
+                transfers.push({ account, amount: destination.amount });
+            } catch (error) {
+                transaction.add(
+                    createAssociatedTokenAccountInstruction(
+                        payer,
+                        associatedToken,
+                        publicKey,
+                        mint
+                    )
+                );
+            }
+        }
+
+        if (transaction.instructions.length > 0) { // Check if there are any instructions in the transaction
+            const signature = await this.wallet.adapter.sendTransaction(transaction, this.connection);
+
+            console.log(signature);
+        }
+
+        for (const destination of destinations) {
+            const publicKey = new PublicKey(destination.address);
+            const associatedToken = getAssociatedTokenAddressSync(mint, publicKey);
+            await pRetry(async () => {
+                const account = await getAccount(this.connection, associatedToken);
+                if (!account) throw new Error(`Account not found for address: ${destination.address}`);
+                transfers.push({account,amount:destination.amount});
+            }, {
+                retries: 10,
+                minTimeout: 3000
+            });
+        }
+
+        return transfers;
     }
 
 }
