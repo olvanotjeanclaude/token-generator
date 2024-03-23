@@ -15,7 +15,8 @@ export function logger(signature) {
 }
 
 export function signatureLink(signature) {
-    return `https://explorer.solana.com/tx/${signature}?cluster=${CLUSTER}`;
+    const path = signature.length >=44 ? "tx": "address";
+    return `https://explorer.solana.com/${path}/${signature}?cluster=${CLUSTER}`;
 }
 
 export const customColor = {

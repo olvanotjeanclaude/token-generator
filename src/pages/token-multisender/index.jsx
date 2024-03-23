@@ -68,8 +68,6 @@ const Page = () => {
 
             resetState()
 
-            setIsLoading(true)
-
             const data = [
                 ...values.senders,
                 ...values.addresses.map(address => ({ address, amount: values.csvAmount }))
@@ -81,7 +79,18 @@ const Page = () => {
                 })
                 .slice(0, 3);
 
+                if(data.length==0){
+                    setMessage({
+                        type: "error",
+                        text: "No destination provided"
+                    })
+                    setSnackbar(true)
+                    return
+                }
+
             try {
+                setIsLoading(true)
+
                 const mint = new PublicKey(values.tokenAddress);
                 const token = new TokenManager(mint, wallet);
 

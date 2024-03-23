@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { TextField, Button, Grid, Typography, Stack } from '@mui/material';
+import { TextField, Button, Grid, Typography, Stack, Box } from '@mui/material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import Layout from '@/components/Layout';
@@ -255,11 +255,12 @@ const Page = () => {
             />
           </Grid>
           <Grid item xs={12}>
-            {mint && <Stack mb={3} direction="row" alignItems="center" gap={1}>
-              <Typography variant='body2'>Generated Mint:</Typography>
-              <Typography fontSize={13} style={{ color: green[300] }}>{mint}</Typography>
-            </Stack>}
 
+            {mint &&
+              <Box mt={2} mb={5}>
+                <SignatureExplorer signature={mint} />
+              </Box>
+              }
 
             <LoadingButtonComponent isLoading={isLoading} label="Generate Token" />
           </Grid>

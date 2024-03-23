@@ -1,10 +1,10 @@
-import { Alert, AlertColor, Button, Snackbar } from '@mui/material'
+import { Alert, Button, Snackbar } from '@mui/material'
 import React from 'react'
 
 interface ICustomSnackbar {
     open: boolean,
     setOpen: Function,
-    message: { type: AlertColor, text: string }
+    message: { type: 'success' | 'info' | 'warning' | 'error', text: string }
 }
 
 export default function CustomSnackbar({
@@ -12,14 +12,16 @@ export default function CustomSnackbar({
     setOpen,
     message
 }: ICustomSnackbar) {
-    return (
 
+    if (!message.type && !message.text) return <></>;
+
+    return (
         <Snackbar open={open} autoHideDuration={6000} onClose={() => setOpen(false)}>
             <Alert
                 onClose={() => setOpen(false)}
                 severity={message.type}
                 variant="filled"
-                sx={{ width: '100%',color:"#fff" }}
+                sx={{ width: '100%', color: "#fff" }}
             >
                 {message.text}
             </Alert>

@@ -1,21 +1,27 @@
-import { signatureLink } from '@/constants'
-import { Box, Link, Typography } from '@mui/material'
-import { green } from '@mui/material/colors'
-import React from 'react'
+import { signatureLink } from '@/constants';
+import { truncateText } from '@/helper';
+import { Box, Typography } from '@mui/material';
+import { green } from '@mui/material/colors';
+import React from 'react';
 
-export default function SignatureExplorer({ signature }) {
+
+
+const SignatureExplorer = ({ signature }) => {
     return (
-        <Box display="flex" gap={.3} alignItems="center"  overflow="hidden">
-            <Typography fontSize={14}>Signature:</Typography>
+        <Box display="flex" gap={0.3} alignItems="center" overflow="hidden">
+            <Typography fontSize={14} component="span">Signature:</Typography>
             <Typography
-                fontSize={14}
-                target='_blank'
-                alignItems="center"
-                sx={{ textDecoration: "none" }}
-                textOverflow="ellipsis"
-                color={green[500]}
                 component="a"
-                href={signatureLink(signature)}>{signature}</Typography>
+                target="_blank"
+                fontSize={14}
+                color={green[500]}
+                href={signatureLink(signature)}
+                title={signatureLink(signature)}
+                sx={{ textDecoration: 'none', cursor: 'pointer' }}>
+                {truncateText(signature)}
+            </Typography>
         </Box>
-    )
-}
+    );
+};
+
+export default SignatureExplorer;

@@ -3,10 +3,7 @@ const routes = [
         title: "Token Creator",
         path: "/token-creator",
     },
-    // {
-    //     title: "Token Transfer",
-    //     path: "/token-transfer"
-    // },
+
     {
         title: "Mint Token",
         path: "/mint-token"
@@ -18,10 +15,6 @@ const routes = [
     {
         title: "Authority Management",
         path: "/authority-management"
-    },
-    {
-        title: "Token Metadata",
-        path: "/token-metadata"
     },
     // {
     //     title: "Sol Airdrop",

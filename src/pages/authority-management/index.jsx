@@ -1,49 +1,30 @@
 // Import the necessary dependencies
-import React, { useState } from 'react';
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
+import React from 'react';
 import { Stack, Box, Tabs, Tab, FormControlLabel, Checkbox, Button } from '@mui/material';
 import Layout from '@/components/Layout';
 import Title from '@/components/Title';
 import CustomCard from '@/components/CustomCard';
 import TabMultiAddress from './(components)/TabMultiAddress';
 import TabTokenFromWallet from './(components)/TabTokenFromWallet';
+import CustomSnackbar from '@/components/CustomSnackbar';
+import LoadingButtonComponent from '@/components/LoadingButtonComponent';
+import useTokenAuthority from './useTokenAuthority';
+import SignatureExplorer from '@/components/SignatureExplorer';
 
-// Define the validation schema
-const validationSchema = Yup.object().shape({
-  addresses: Yup.array().of(
-    Yup.string().required('Address is required')
-  ).min(1, 'At least one address is required'),
-  freezeAuthority: Yup.boolean(),
-  mintAuthority: Yup.boolean(),
-});
-
-// Define the initial values
-const initialValues = {
-  addresses: [''],
-  freezeAuthority: false,
-  mintAuthority: false,
-  tokens: []
-};
 
 const AuthorityManagementPage = () => {
-  const [tabIndex, setTabIndex] = useState(0);
+  const {
+    formik,
+    handleTabChange,
+    tabIndex,
+    isLoading,
+    snackbar,
+    setSnackbar,
+    message,
+    response
+  } = useTokenAuthority();
 
-  const handleTabChange = (event, newValue) => {
-    setTabIndex(newValue);
-  };
 
-  // Initialize Formik
-  const formik = useFormik({
-    initialValues,
-    validationSchema,
-    onSubmit: (values) => {
-      console.log(values);
-      // Handle form submission here
-    },
-  });
-
-  // Render the component
   return (
     <Layout title="Authority Management">
       <Title title='Authority Management' />
@@ -89,10 +70,20 @@ const AuthorityManagementPage = () => {
               />
             </Box>
 
-            <Button type="submit" variant='contained' style={{ marginTop: '8px' }}>Submit</Button>
+            <LoadingButtonComponent label="Revoke" isLoading={isLoading} />
           </Box>
+
+            {response &&
+             <Box my={5}>
+              <SignatureExplorer signature={response} />
+            </Box>}
         </CustomCard>
       </form>
+      <CustomSnackbar
+        open={snackbar}
+        setOpen={setSnackbar}
+        message={message}
+      />
     </Layout>
   );
 };

@@ -218,13 +218,11 @@ class TokenManager {
     }
 
     public async getAssociatedTokenAccounts(destinations: IMultiSender[]): Promise<ITokenTransfer[]> {
-        if (!this.wallet.adapter.publicKey) throw "NO WALLET";
+        if (!this.wallet.adapter.publicKey) throw "NO WALLET FOUND";
 
         const mint = new PublicKey(this.mint);
         const payer = new PublicKey(this.wallet.adapter.publicKey.toBase58());
-
         const transfers: ITokenTransfer[] = [];
-
         const transaction = new Transaction();
 
         for (const destination of destinations) {
@@ -232,8 +230,7 @@ class TokenManager {
             const associatedToken = getAssociatedTokenAddressSync(mint, publicKey);
 
             try {
-                const account = await getAccount(this.connection, associatedToken);
-                transfers.push({ account, amount: destination.amount });
+                 await getAccount(this.connection, associatedToken);
             } catch (error) {
                 transaction.add(
                     createAssociatedTokenAccountInstruction(
@@ -246,10 +243,10 @@ class TokenManager {
             }
         }
 
-        if (transaction.instructions.length > 0) { // Check if there are any instructions in the transaction
+        if (transaction.instructions.length > 0) {
             const signature = await this.wallet.adapter.sendTransaction(transaction, this.connection);
 
-            console.log(signature);
+            // console.log(signature);
         }
 
         for (const destination of destinations) {
