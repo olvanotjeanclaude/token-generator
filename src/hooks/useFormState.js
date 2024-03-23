@@ -4,20 +4,20 @@ const useFormState = () => {
     const [errors, setErrors] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isError, setIsError] = useState(false);
-    const [response,setResonse] = useState("");
+    const [response,setResponse] = useState("");
 
     const resetState=() =>{
         setErrors("");
         setIsLoading(false);
         setIsError(false);
-        setResonse("");
+        setResponse("");
     }
 
     return {
         errors, setErrors,
         isLoading, setIsLoading,
         isError, setIsError,
-        response, setResonse,
+        response, setResponse,
         resetState
     }
 }

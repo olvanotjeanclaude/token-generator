@@ -5,8 +5,8 @@ import React from 'react'
 
 export default function SignatureExplorer({ signature }) {
     return (
-        <Box display="flex" gap={1}   overflow="hidden">
-            <Typography>Signature:</Typography>
+        <Box display="flex" gap={.3} alignItems="center"  overflow="hidden">
+            <Typography fontSize={14}>Signature:</Typography>
             <Typography
                 fontSize={14}
                 target='_blank'

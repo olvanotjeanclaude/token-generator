@@ -1,5 +1,5 @@
 import { CLUSTER_URL } from "@/constants";
-import { Account, MINT_SIZE, TOKEN_PROGRAM_ID, createAssociatedTokenAccountInstruction, createInitializeMintInstruction, createMintToInstruction, createTransferInstruction, getAccount, getAssociatedTokenAddress, getAssociatedTokenAddressSync, getMinimumBalanceForRentExemptMint, getMint, getOrCreateAssociatedTokenAccount, mintTo, transfer } from "@solana/spl-token";
+import { Account, MINT_SIZE, TOKEN_PROGRAM_ID, TokenOwnerOffCurveError, createAssociatedTokenAccountInstruction, createInitializeMintInstruction, createMintToInstruction, createTransferInstruction, getAccount, getAssociatedTokenAddress, getAssociatedTokenAddressSync, getMinimumBalanceForRentExemptMint, getMint, getOrCreateAssociatedTokenAccount, mintTo, transfer } from "@solana/spl-token";
 import { Wallet } from "@solana/wallet-adapter-react";
 import { Connection, Keypair, PublicKey, SystemProgram, Transaction, TransactionSignature } from "@solana/web3.js";
 import pRetry from "p-retry";
@@ -35,6 +35,7 @@ class TokenManager {
         const mint = new PublicKey(this.mint);
 
         const payer = new PublicKey(this.wallet.adapter.publicKey.toBase58());
+
 
         const associatedToken = getAssociatedTokenAddressSync(
             mint,
@@ -173,39 +174,47 @@ class TokenManager {
 
     public async sendMultiple(destinations: Array<IMultiSender>): Promise<TransactionSignature> {
         if (!this.mint) throw new Error("Mint not yet created");
+
         if (!this.wallet.adapter.publicKey) throw "NO WALLET";
 
         if (destinations.length === 0) throw new Error("No valid destination found");
 
-        const payer = new PublicKey(this.wallet.adapter.publicKey.toBase58());
+        const { value: tokenSupply } = await this.connection.getTokenSupply(this.mint);
 
-        const transfers = await this.getAssociatedTokenAccounts(destinations);
+        if (!tokenSupply) throw "No value found for the given token";
 
-        const fromTokenAccount = await this.getAssociatedTokenAccount(payer);
+        try {
+            const payer = new PublicKey(this.wallet.adapter.publicKey.toBase58());
 
-        // console.log({transfers,fromTokenAccount});
-      
-        const transaction = new Transaction();
+            const transfers = await this.getAssociatedTokenAccounts(destinations);
 
-        transfers.map(transfer => {
-            const toTokenAccount = transfer.account;
-           
-            transaction.add(
-                createTransferInstruction(
-                    fromTokenAccount.address,
-                    toTokenAccount.address,
-                    payer,
-                    transfer.amount,
+            const fromTokenAccount = await this.getAssociatedTokenAccount(payer);
+
+            const transaction = new Transaction();
+
+            transfers.map(transfer => {
+                const toTokenAccount = transfer.account;
+
+                transaction.add(
+                    createTransferInstruction(
+                        fromTokenAccount.address,
+                        toTokenAccount.address,
+                        payer,
+                        transfer.amount * Math.pow(10, tokenSupply.decimals),
+                    )
                 )
-            )
-        })
+            })
 
-        const signature = await this.wallet.adapter.sendTransaction(
-            transaction,
-            this.connection,
-        );
+            const signature = await this.wallet.adapter.sendTransaction(
+                transaction,
+                this.connection,
+            );
 
-        return signature;
+            return signature;
+        } catch (error) {
+            throw "We're sorry, but there was an issue processing your transaction.";
+        }
+
     }
 
     public async getAssociatedTokenAccounts(destinations: IMultiSender[]): Promise<ITokenTransfer[]> {
@@ -249,7 +258,7 @@ class TokenManager {
             await pRetry(async () => {
                 const account = await getAccount(this.connection, associatedToken);
                 if (!account) throw new Error(`Account not found for address: ${destination.address}`);
-                transfers.push({account,amount:destination.amount});
+                transfers.push({ account, amount: destination.amount });
             }, {
                 retries: 10,
                 minTimeout: 3000

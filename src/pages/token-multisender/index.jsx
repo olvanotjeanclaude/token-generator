@@ -13,6 +13,7 @@ import useCustomSnackbar from '@/hooks/useCustomSnackbar';
 import CustomSnackbar from '@/components/CustomSnackbar';
 import LoadingButtonComponent from '@/components/LoadingButtonComponent';
 import useFormState from '@/hooks/useFormState';
+import SignatureExplorer from '@/components/SignatureExplorer';
 
 
 const validationSchema = Yup.object().shape({
@@ -38,7 +39,7 @@ const Page = () => {
     const [senderCount, setSenderCount] = useState(1);
     const { wallet, publicKey } = useWallet();
     const { message, setMessage, snackbar, setSnackbar } = useCustomSnackbar();
-    const { errors, setErrors, response, setResonse, isLoading, setIsLoading, resetState } = useFormState();
+    const { response, setResponse, isLoading, setIsLoading, resetState } = useFormState();
 
 
     const addSender = () => {
@@ -84,18 +85,20 @@ const Page = () => {
                 const mint = new PublicKey(values.tokenAddress);
                 const token = new TokenManager(mint, wallet);
 
-                const res = await token.sendMultiple(data);
+                const signature = await token.sendMultiple(data);
 
                 setMessage({
                     type:"success",
                     text:"Transfer successfully"
                 })
                 setSnackbar(true);
+                setResponse(signature);
                 formik.resetForm()
+                setSenderCount(1);
             } catch (error) {
                 setMessage({
                     type: "error",
-                    text: error?.message ?? "Error occured"
+                    text: error ?? "unexpected error occurred"
                 });
                 setSnackbar(true)
             }
@@ -103,10 +106,19 @@ const Page = () => {
                 setIsLoading(false);
             }
         },
+        validate(values){
+            const error = {};
+
+            if(values.addresses.length>0 && values.csvAmount==0){
+                error["csvAmount"] = "Csv Amount must be greater than 0";
+            }
+
+            return error;
+        }
     });
 
     return (
-        <form onSubmit={formik.handleSubmit}>
+        <form autoComplete='off' onSubmit={formik.handleSubmit}>
             <Title title="Token Multi Sender" />
 
             <Grid container>
@@ -154,7 +166,7 @@ const Page = () => {
                                 </Grid>
 
                                 <Grid item xs={2}>
-                                    <Button disabled={formik.values.senders.length === 1} sx={{ mt: { md: 1.3 } }} size='large' variant="contained" color="secondary" onClick={() => removeSender(index)}>
+                                    <Button sx={{ mt: { md: 1.3 } }} size='large' variant="contained" color="secondary" onClick={() => removeSender(index)}>
                                         Remove
                                     </Button>
                                 </Grid>
@@ -163,11 +175,14 @@ const Page = () => {
                     </Grid>
 
                     <UploadedAddresses formik={formik} addresses={formik.values.addresses} />
+
+                        <br />
+                    {response && <SignatureExplorer signature={response} />}
                 </Grid>
 
                 <Grid item xs={12} lg={3}>
-                    <Stack px={3} mt={{ xs: 2, md: 0 }} spacing={2}>
-                        <Stack gap={2} direction={{ xs: "row", md: "column" }} justifyContent="center">
+                    <Stack px={3} mt={{ xs: 2, lg: 0 }} spacing={2}>
+                        <Stack gap={2} direction={{ xs: "row", lg: "column" }} justifyContent="center">
                             <Box>
                                 <Button variant="contained" color="primary" onClick={addSender}>
                                     Add New Row

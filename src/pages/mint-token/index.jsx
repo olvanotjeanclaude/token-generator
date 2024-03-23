@@ -14,6 +14,7 @@ import useFormState from '@/hooks/useFormState';
 import Errors from '@/components/Errors';
 import LoadingButtonComponent from '@/components/LoadingButtonComponent';
 import SignatureExplorer from '@/components/SignatureExplorer';
+import CustomCard from '@/components/CustomCard';
 
 const validationSchema = Yup.object().shape({
   address: Yup.string().required('Address is required'),
@@ -28,7 +29,7 @@ const TokenMintForm = () => {
   };
   const { wallet, publicKey } = useWallet();
   const { message, setMessage, snackbar, setSnackbar } = useCustomSnackbar();
-  const { errors, setErrors, response, setResonse, isLoading, setIsLoading, resetState } = useFormState();
+  const { errors, setErrors, response, setResponse, isLoading, setIsLoading, resetState } = useFormState();
 
   const formik = useFormik({
     initialValues,
@@ -52,7 +53,7 @@ const TokenMintForm = () => {
           })
 
           setSnackbar(true);
-          setResonse(signature);
+          setResponse(signature);
           formik.resetForm();
         }
       } catch (error) {
@@ -86,14 +87,14 @@ const TokenMintForm = () => {
             helperText={formik.touched.amount && formik.errors.amount}
           />
         </Stack>
-          <Box display="flex" mt={3} mb={6} justifyContent="center">
-            {publicKey ?
-              <LoadingButtonComponent label="Mint Token" isLoading={isLoading} /> : 
-              <Typography>Before you can mint, first select your wallet please !</Typography>
-            }
-          </Box>
+        <Box display="flex" mt={3} mb={6} justifyContent="center">
+          {publicKey ?
+            <LoadingButtonComponent label="Mint Token" isLoading={isLoading} /> :
+            <Typography>Before you can mint, first select your wallet please !</Typography>
+          }
+        </Box>
 
-            {response && <SignatureExplorer signature={response} />}
+        {response && <SignatureExplorer signature={response} />}
       </form>
 
       <CustomSnackbar
@@ -109,7 +110,9 @@ const TokenMintPage = () => {
   return (
     <Layout title="Token Minting">
       <Title title="Token Minting" />
+      <CustomCard>
         <TokenMintForm />
+      </CustomCard>
     </Layout>
   );
 };

@@ -13,6 +13,7 @@ import useCustomSnackbar from '@/hooks/useCustomSnackbar';
 import LoadingButtonComponent from '@/components/LoadingButtonComponent';
 import useFormState from '@/hooks/useFormState';
 import SignatureExplorer from '@/components/SignatureExplorer';
+import CustomCard from '@/components/CustomCard';
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required('Name is required'),
@@ -276,7 +277,9 @@ const Page = () => {
 
 Page.getLayout = (page) => {
   return <Layout title="Token Generator">
+    <CustomCard>
       {page}
+    </CustomCard>
   </Layout>
 }
 
