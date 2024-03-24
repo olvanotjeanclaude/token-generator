@@ -4,11 +4,11 @@ import { Stack, Box, Tabs, Tab, FormControlLabel, Checkbox, Button } from '@mui/
 import Layout from '@/components/Layout';
 import Title from '@/components/Title';
 import CustomCard from '@/components/CustomCard';
-import TabMultiAddress from './(components)/TabMultiAddress';
-import TabTokenFromWallet from './(components)/TabTokenFromWallet';
+import TabMultiAddress from '@/sections/authority-management/TabMultiAddress';
+import TabTokenFromWallet from '@/sections/authority-management/TabTokenFromWallet';
 import CustomSnackbar from '@/components/CustomSnackbar';
 import LoadingButtonComponent from '@/components/LoadingButtonComponent';
-import useTokenAuthority from './useTokenAuthority';
+import useTokenAuthority from '@/hooks/useTokenAuthority';
 import SignatureExplorer from '@/components/SignatureExplorer';
 
 

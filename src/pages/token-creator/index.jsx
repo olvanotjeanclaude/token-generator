@@ -276,12 +276,12 @@ const Page = () => {
   );
 };
 
-Page.getLayout = (page) => {
+const TokenCreator = () => {
   return <Layout title="Token Generator">
     <CustomCard>
-      {page}
+      <Page />
     </CustomCard>
   </Layout>
 }
 
-export default Page;
+export default TokenCreator;
