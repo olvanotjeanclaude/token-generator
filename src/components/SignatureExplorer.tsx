@@ -1,12 +1,11 @@
-import { signatureLink } from '@/constants';
-import { truncateText } from '@/helper';
+import { signatureLink, truncateText } from '@/helper';
 import { Box, Typography } from '@mui/material';
 import { green } from '@mui/material/colors';
 import React from 'react';
 
 
 
-const SignatureExplorer = ({ signature }) => {
+const SignatureExplorer = ({ signature }: { signature: string }) => {
     return (
         <Box display="flex" gap={0.3} alignItems="center" overflow="hidden">
             <Typography fontSize={14} component="span">Signature:</Typography>

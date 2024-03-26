@@ -1,6 +1,6 @@
 // Import the necessary dependencies
 import React from 'react';
-import { Stack, Box, Tabs, Tab, FormControlLabel, Checkbox, Button } from '@mui/material';
+import {  Box, Tabs, Tab, FormControlLabel, Checkbox } from '@mui/material';
 import Layout from '@/components/Layout';
 import Title from '@/components/Title';
 import CustomCard from '@/components/CustomCard';
@@ -10,6 +10,7 @@ import CustomSnackbar from '@/components/CustomSnackbar';
 import LoadingButtonComponent from '@/components/LoadingButtonComponent';
 import useTokenAuthority from '@/hooks/useTokenAuthority';
 import SignatureExplorer from '@/components/SignatureExplorer';
+import TokensToRevoks from '@/sections/authority-management/TokensToRevoks';
 
 
 const AuthorityManagementPage = () => {
@@ -78,6 +79,7 @@ const AuthorityManagementPage = () => {
               <SignatureExplorer signature={response} />
             </Box>}
         </CustomCard>
+        {/* <TokensToRevoks /> */}
       </form>
       <CustomSnackbar
         open={snackbar}

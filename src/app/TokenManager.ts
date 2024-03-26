@@ -1,10 +1,10 @@
 import { CLUSTER_URL } from "@/constants";
-import { Account, MINT_SIZE, TOKEN_PROGRAM_ID, TokenOwnerOffCurveError, createAssociatedTokenAccountInstruction, createInitializeMintInstruction, createMintToInstruction, createTransferInstruction, getAccount, getAssociatedTokenAddress, getAssociatedTokenAddressSync, getMinimumBalanceForRentExemptMint, getMint, getOrCreateAssociatedTokenAccount, mintTo, transfer } from "@solana/spl-token";
+import { Account, MINT_SIZE, TOKEN_PROGRAM_ID, createAssociatedTokenAccountInstruction, createInitializeMintInstruction, createMintToInstruction, createTransferInstruction, getAccount, getAssociatedTokenAddress, getAssociatedTokenAddressSync, getMinimumBalanceForRentExemptMint, getMint, getOrCreateAssociatedTokenAccount, mintTo, transfer } from "@solana/spl-token";
 import { Wallet } from "@solana/wallet-adapter-react";
 import { Connection, Keypair, PublicKey, SystemProgram, Transaction, TransactionSignature } from "@solana/web3.js";
 import pRetry from "p-retry";
 
-interface IMultiSender {
+export interface IMultiSender {
     address: string,
     amount: number
 }
@@ -115,7 +115,7 @@ class TokenManager {
         ).catch(error => {
             console.log(error);
 
-            throw error?.message
+            throw "We are unable to mint your token.";
         });
 
         return signature;

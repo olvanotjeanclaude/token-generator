@@ -1,11 +1,11 @@
 import base58 from 'bs58';
-import { percentAmount, generateSigner, signerIdentity, createSignerFromKeypair, Umi, KeypairSigner } from '@metaplex-foundation/umi'
+import { percentAmount, generateSigner, Umi, KeypairSigner } from '@metaplex-foundation/umi'
 import { TokenStandard, createAndMint } from '@metaplex-foundation/mpl-token-metadata'
 import { mplCandyMachine } from "@metaplex-foundation/mpl-candy-machine";
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
-import { TransactionInstruction, TransactionSignature } from '@solana/web3.js';
+import {  TransactionSignature } from '@solana/web3.js';
 import "@solana/web3.js";
-import { CLUSTER_URL, logger } from '@/constants';
+import { CLUSTER_URL } from '@/constants';
 import { Wallet } from '@solana/wallet-adapter-react';
 import { walletAdapterIdentity } from "@metaplex-foundation/umi-signer-wallet-adapters";
 import NFTStorage from './NFTStorage';
@@ -19,6 +19,7 @@ export interface IMetadata {
         website?: string;
         twitter?: string;
         telegram?: string;
+        discord?: string;
     };
     tags?: string[];
     creator?: {
@@ -89,8 +90,6 @@ class MintManager {
                     console.log(err);
                     throw "Unable to create and mint. please try again latter";
                 });
-
-            logger(signature);
 
             return signature
         } catch (error) {

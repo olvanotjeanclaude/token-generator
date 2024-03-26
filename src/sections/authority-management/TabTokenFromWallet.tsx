@@ -4,91 +4,45 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import AccountManager from '@/app/AccountManager';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import TokenListByOwner from '@/components/TokenListByOwner';
+import useTokenListByOwner from '@/hooks/useTokenListByOwner';
+import MintInfo from '@/components/MintInfo';
 
 interface Props {
-    formik: any; // Adjust the type according to your Formik form
+    formik: any;
 }
 
 
 const TabTokenFromWallet: React.FC<Props> = ({ formik }) => {
-    const { wallet, publicKey } = useWallet();
-    const [tokens, setTokens] = useState<string[]>([]);
-    const [selectedTokens, setSelectedTokens] = useState<string[]>([]);
-
-    const fetchTokens = async () => {
-        if (!publicKey) return;
-        const tokens = await AccountManager.getTokens(publicKey);
-        setTokens(tokens);
-        formik.setFieldValue("tokens", selectedTokens);
-    }
-
-    useEffect(() => {
-        const fetchData = async () => {
-            if (wallet && wallet.readyState === "Installed") {
-                await fetchTokens();
-            }
-        };
-        if (wallet && wallet.readyState == "Installed") {
-            wallet.adapter.addListener("disconnect", () => {
-                formik.setFieldValue("tokens", []);
-                setSelectedTokens([]);
-                setTokens([]);
-            })
-        }
-
-        fetchData();
-
-        const cleanup = () => {
-            setSelectedTokens([]);
-            console.log("clean");
-        };
-
-        if (wallet) {
-            wallet.adapter.addListener("disconnect", cleanup);
-        }
-
-        return () => {
-            if (wallet) {
-                wallet.adapter.removeListener("disconnect", cleanup);
-            }
-        };
-    }, [wallet, publicKey]);
-
-    const handleChange = (event: React.ChangeEvent<{}>, value: string[]) => {
-        setSelectedTokens(value);
-        formik.setFieldValue("tokens", value);
-    };
-
-    const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
-    const checkedIcon = <CheckBoxIcon fontSize="small" />;
-
-    
+    const {
+        publicKey,
+        tokens,
+        value,
+        handleChange,
+        fetchTokens
+    } = useTokenListByOwner(formik);
     return (
         <Box mt={2} mb={3} gap={2} >
+            {value && <MintInfo publicKey={value ?? ""} />}
+
             <Autocomplete
-                // sx={{maxWidth:"100%"}}
-                disableCloseOnSelect
-                disabled={!publicKey}
-                multiple
-                noOptionsText="No token found"
-                onChange={handleChange}
+                disablePortal
+                id="addressList"
+                isOptionEqualToValue={(option, value) => option === value}
+                noOptionsText="No address Found"
                 options={tokens}
+                value={value}
+                onChange={handleChange}
+                onOpen={fetchTokens}
+                disabled={!publicKey}
                 renderInput={(params) => (
-                    <TextField {...params}
-                        error={formik.touched.tokens && Boolean(formik.errors.tokens)}
-                        helperText={formik.touched.tokens && formik.errors.tokens}
+                    <TextField
+                        sx={{ width: "100%" }}
+                        error={formik.touched.tokenAddress && Boolean(formik.errors.tokenAddress)}
+                        helperText={formik.touched.tokenAddress && formik.errors.tokenAddress}
                         {...params}
+                        label="Token Address"
                     />
-                )}
-                renderOption={(props, tokenName, { selected }) => (
-                    <Typography sx={{overflow:"hidden"}} {...props}>
-                        <Checkbox
-                            icon={icon}
-                            checkedIcon={checkedIcon}
-                            checked={selected}
-                        />
-                        {tokenName}
-                    </Typography>
                 )}
             />
         </Box>

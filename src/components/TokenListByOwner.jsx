@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Autocomplete, TextField, Box } from '@mui/material';
+import { Autocomplete, TextField, Box, Typography, Stack } from '@mui/material';
 import { useWallet } from '@solana/wallet-adapter-react';
 import AccountManager from '@/app/AccountManager';
+import CustomCard from './CustomCard';
+import useCustomSnackbar from '@/hooks/useCustomSnackbar';
+import CustomSnackbar from './CustomSnackbar';
+import MintInfo from './MintInfo';
 
 function TokenListByOwner({ formik }) {
-    const [value, setValue] = React.useState("");
+    const [value, setValue] = React.useState(null);
     const [tokens, setTokens] = useState([]);
     const { publicKey, wallet } = useWallet();
 
@@ -12,6 +16,7 @@ function TokenListByOwner({ formik }) {
         if (!publicKey) return;
 
         const tokens = await AccountManager.getTokens(publicKey);
+        
         setTokens(tokens);
     }
 
@@ -39,18 +44,22 @@ function TokenListByOwner({ formik }) {
         };
     }, [wallet, publicKey]);
 
-    const handleChange = (event, newValue) => {
+
+
+    const handleChange =  (event, newValue) => {
         setValue(newValue);
-        formik.setFieldValue("address", newValue);
+        formik.setFieldValue("tokenAddress", newValue);
     };
 
     return (
-        <Box>
+        <Stack gap={2}>
+           { <MintInfo publicKey={value} />}
             <Autocomplete
                 disablePortal
                 id="addressList"
+                size='large'
                 value={value}
-                isOptionEqualToValue={(option, value) => option.id === value.id}
+                isOptionEqualToValue={(option, value) => option === value}
                 noOptionsText="No address Found"
                 options={tokens}
                 onChange={handleChange}
@@ -59,14 +68,16 @@ function TokenListByOwner({ formik }) {
                 renderInput={(params) => (
                     <TextField
                         sx={{ width: "100%" }}
-                        error={formik.touched.address && Boolean(formik.errors.address)}
-                        helperText={formik.touched.address && formik.errors.address}
+                        error={formik.touched.tokenAddress && Boolean(formik.errors.tokenAddress)}
+                        helperText={formik.touched.tokenAddress && formik.errors.tokenAddress}
                         {...params}
                         label="Token Address"
                     />
                 )}
             />
-        </Box>
+
+        
+        </Stack>
     );
 }
 

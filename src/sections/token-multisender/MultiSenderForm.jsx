@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import Papa from 'papaparse';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { isNumeric } from '@/helper';
 
 
 export default function MultiSenderForm({ formik }) {
@@ -25,12 +26,17 @@ export default function MultiSenderForm({ formik }) {
           complete: (results) => {
             if (!results.data) return;
 
-            const parsedCsv = results.data.join("").split(",").filter(address => {
+            const parsedCsv = results.data.filter(address => {
               const base58Regex = /^[1-9A-HJ-NP-Za-km-z]+$/;
+              return base58Regex.test(address[0]) && isNumeric(address[1]);
+            })
+              .map(address => {
+                const amount = parseFloat(address[1]) ?? 0;
 
-              return base58Regex.test(address);
-            });
+                return { address: address[0], amount }
+              });
 
+              // console.log(parsedCsv)
             formik.setFieldValue("addresses", parsedCsv);
 
             setFilePreview(file);

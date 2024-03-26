@@ -1,127 +1,23 @@
-import React, { useCallback, useState } from 'react';
-import { TextField, Button, Grid, Typography, Stack, Box } from '@mui/material';
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
+import React from 'react';
+import { TextField, Grid, Stack, Box } from '@mui/material';
 import Layout from '@/components/Layout';
 import Title from '@/components/Title';
 import DropzoneForm from '@/components/DropzoneForm';
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import CustomSnackbar from '@/components/CustomSnackbar';
-import MintManager from '@/app/MintManger';
-import { green } from '@mui/material/colors';
-import useCustomSnackbar from '@/hooks/useCustomSnackbar';
 import LoadingButtonComponent from '@/components/LoadingButtonComponent';
-import useFormState from '@/hooks/useFormState';
 import SignatureExplorer from '@/components/SignatureExplorer';
 import CustomCard from '@/components/CustomCard';
-
-const validationSchema = Yup.object().shape({
-  name: Yup.string().required('Name is required'),
-  symbol: Yup.string().required('Symbol is required').max(5, "The symbol must be less than 5"),
-  decimal: Yup.number().required('Decimal is required').max(10, "Cannot be more than 10").positive('Decimal must be a positive number'),
-  file: Yup.string().required('File is required'),
-  supply: Yup.number().required('Supply is required').positive('Supply must be a positive number'),
-  description: Yup.string().required('Description is required'),
-  website: Yup.string().url('Invalid URL'),
-  twitter: Yup.string().url('Invalid URL'),
-  telegram: Yup.string().url('Invalid URL'),
-  discord: Yup.string().url('Invalid URL'),
-});
-
-const initialValues = {
-  name: '',
-  symbol: '',
-  decimal: '',
-  supply: '',
-  description: '',
-  website: '',
-  twitter: '',
-  telegram: '',
-  discord: '',
-  file: null
-};
-
+import useTokenCreator from '@/hooks/useTokenCreator';
 
 const Page = () => {
-  const { wallet, publicKey } = useWallet();
-  const { connection } = useConnection();
-  const [mint, setMint] = useState("");
-  const { message, setMessage, snackbar, setSnackbar } = useCustomSnackbar();
-  const { isLoading, setIsLoading, setErrors, resetState } = useFormState();
-
-  const handleSubmit = useCallback(async (values) => {
-    try {
-      if (!publicKey) {
-        setMessage({
-          type: "error",
-          text: "Please connect to your phantom wallet"
-        });
-        setSnackbar(true);
-        return;
-      }
-
-      setMint("");
-
-      resetState();
-
-      setIsLoading(true);
-
-      const metadata = {
-        name: values.name,
-        symbol: values.symbol,
-        description: values.description,
-        extensions: {
-          twitter: values.twitter,
-          telegram: values.telegram,
-          discord: values.discord,
-        }
-      };
-
-      const mintManager = new MintManager(wallet, metadata);
-
-      await mintManager.uploadMetadata(values.file);
-
-      const mint = await mintManager.buildMint(values.supply, values.decimal);
-
-      setMessage({
-        type: "success",
-        text: "Token generated successfully"
-      });
-      setMint(mint);
-      setSnackbar(true);
-      formik.resetForm();
-    } catch (error) {
-      setErrors(error);
-      setMessage({
-        type: "error",
-        text: error
-      });
-      setSnackbar(true);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [publicKey, wallet, connection]);
-
-
-  const formik = useFormik({
-    initialValues,
-    validationSchema,
-    onSubmit: handleSubmit,
-    validate: (values) => {
-      const errors = {};
-      // Check if a file is selected
-      if (!values.file) {
-        errors.file = 'Please select a file';
-      }
-
-      if (values.file && !['image/jpeg', 'image/png'].includes(values.file.type)) {
-        errors.file = 'File type must be JPEG or PNG';
-      }
-
-      return errors
-    }
-  });
-
+  const {
+    formik,
+    mint,
+    isLoading,
+    snackbar,
+    setSnackbar,
+    message
+  } = useTokenCreator();
   return (
     <>
       <Title title="Token Generator" />
@@ -260,7 +156,7 @@ const Page = () => {
               <Box mt={2} mb={5}>
                 <SignatureExplorer signature={mint} />
               </Box>
-              }
+            }
 
             <LoadingButtonComponent isLoading={isLoading} label="Generate Token" />
           </Grid>

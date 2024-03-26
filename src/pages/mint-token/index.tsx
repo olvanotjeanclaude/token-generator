@@ -1,77 +1,31 @@
 import React from 'react';
-import { TextField, Button, Stack, Box, Typography } from '@mui/material';
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
+import { TextField,  Stack, Box, Typography } from '@mui/material';
 import Layout from '@/components/Layout';
 import Title from "@/components/Title";
-import TokenManager from '@/app/TokenManager';
-import { PublicKey } from '@solana/web3.js';
-import { useWallet } from '@solana/wallet-adapter-react';
 import TokenListByOwner from '@/components/TokenListByOwner';
-import useCustomSnackbar from '@/hooks/useCustomSnackbar';
 import CustomSnackbar from '@/components/CustomSnackbar';
-import useFormState from '@/hooks/useFormState';
 import Errors from '@/components/Errors';
 import LoadingButtonComponent from '@/components/LoadingButtonComponent';
 import SignatureExplorer from '@/components/SignatureExplorer';
 import CustomCard from '@/components/CustomCard';
-
-const validationSchema = Yup.object().shape({
-  address: Yup.string().required('Address is required'),
-  amount: Yup.number("Amount must be number").required('Amount is required').min(0, 'Amount must be greater than or equal to 0'),
-});
-
+import useTokenMint from '@/hooks/useTokenMint';
 
 const TokenMintForm = () => {
-  const initialValues = {
-    address: '',
-    amount: '',
-  };
-  const { wallet, publicKey } = useWallet();
-  const { message, setMessage, snackbar, setSnackbar } = useCustomSnackbar();
-  const { errors, setErrors, response, setResponse, isLoading, setIsLoading, resetState } = useFormState();
-
-  const formik = useFormik({
-    initialValues,
-    validationSchema,
-    onSubmit: async (values) => {
-      try {
-        resetState();
-
-        setIsLoading(true);
-
-        const mint = new PublicKey(values.address);
-
-        const tokenManager = new TokenManager(mint, wallet)
-
-        const signature = await tokenManager.mintTo(publicKey, values.amount);
-
-        if (signature) {
-          setMessage({
-            text: `Successfully minted ${values.amount} tokens.`,
-            type: "success"
-          })
-
-          setSnackbar(true);
-          setResponse(signature);
-          formik.resetForm();
-        }
-      } catch (error) {
-        setErrors([error]);
-      }
-      finally {
-        setIsLoading(false);
-      }
-
-    },
-
-  });
-
+  const {
+    publicKey,
+    isLoading,
+    response,
+    formik,
+    errors,
+    snackbar,
+    setSnackbar,
+    message
+  } = useTokenMint();
   return (
     <Box >
       <form autoComplete='off' onSubmit={formik.handleSubmit}>
         <Stack spacing={2}>
-          <Errors errors={errors} />
+          {/* <Errors errors={errors} /> */}
 
           <TokenListByOwner formik={formik} />
 

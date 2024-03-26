@@ -25,12 +25,12 @@ class NFTStorage {
             .then(image => {
                 const metadata = { ...formMetadata, image };
 
-                console.log('Image uploaded to NFT.Storage:', image);
+                // console.log('Image uploaded to NFT.Storage:', image);
 
                 return this.upload(new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
             })
             .then(metadataUrl => {
-                console.log('Metadata uploaded to NFT.Storage:', metadataUrl);
+                // console.log('Metadata uploaded to NFT.Storage:', metadataUrl);
 
                 return metadataUrl;
             })

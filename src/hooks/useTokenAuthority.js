@@ -20,6 +20,7 @@ const initialValues = {
     addresses: [''],
     freezeAuthority: false,
     mintAuthority: false,
+    tokenAddress:"",
     tokens: []
 };
 
@@ -106,19 +107,19 @@ const useTokenAuthority = () => {
 
             if (values.freezeAuthority && values.mintAuthority) {
                 const signature = await revokeFreezeAndMint();
-                console.log(signature);
+                // console.log(signature);
                 return
             }
 
             if (values.freezeAuthority) {
                 const signature = await revokeFreeze();
-                console.log(signature);
+                // console.log(signature);
                 return
             }
 
             if (values.mintAuthority) {
                 const signature = await revokeMint();
-                console.log(signature);
+                // console.log(signature);
                 return
             }
         } catch (error) {
