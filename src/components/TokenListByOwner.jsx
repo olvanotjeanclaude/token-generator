@@ -53,13 +53,13 @@ function TokenListByOwner({ formik }) {
 
     return (
         <Stack gap={2}>
-           { <MintInfo publicKey={value} />}
+           {publicKey&& <MintInfo publicKey={value} />}
             <Autocomplete
                 disablePortal
                 id="addressList"
                 size='large'
                 value={value}
-                isOptionEqualToValue={(option, value) => option === value}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
                 noOptionsText="No address Found"
                 options={tokens}
                 onChange={handleChange}

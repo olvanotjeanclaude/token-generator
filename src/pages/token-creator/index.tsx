@@ -8,6 +8,7 @@ import LoadingButtonComponent from '@/components/LoadingButtonComponent';
 import SignatureExplorer from '@/components/SignatureExplorer';
 import CustomCard from '@/components/CustomCard';
 import useTokenCreator from '@/hooks/useTokenCreator';
+import TokenCreatorInstruction from '@/sections/token-creator/TokenCreatorInstruction';
 
 const Page = () => {
   const {
@@ -20,7 +21,7 @@ const Page = () => {
   } = useTokenCreator();
   return (
     <>
-      <Title title="Token Generator" />
+      {/* <Title title="Token Generator" /> */}
       <Stack component="form" autoComplete='off' onSubmit={formik.handleSubmit}>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={7}>
@@ -157,8 +158,9 @@ const Page = () => {
                 <SignatureExplorer signature={mint} />
               </Box>
             }
-
-            <LoadingButtonComponent isLoading={isLoading} label="Generate Token" />
+            <Box display="flex" justifyContent="end">
+              <LoadingButtonComponent color='success' isLoading={isLoading} label="Generate Token" />
+            </Box>
           </Grid>
         </Grid>
 
@@ -174,9 +176,14 @@ const Page = () => {
 
 const TokenCreator = () => {
   return <Layout title="Token Generator">
-    <CustomCard>
-      <Page />
-    </CustomCard>
+    <Grid container spacing={2}>
+      <Grid item xs={12}  md={8}>
+        <Page />
+      </Grid>
+      <Grid item xs={12} mt={{ xs: 5, md: 0 }} md={4}>
+        <TokenCreatorInstruction />
+      </Grid>
+    </Grid>
   </Layout>
 }
 

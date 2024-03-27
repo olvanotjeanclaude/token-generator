@@ -54,7 +54,7 @@ export default function DropzoneForm({ formik }) {
           ) : (
 
             <Stack gap={1} alignItems="center" direction="row">
-              <img
+              <Image
                 src={filePreview.preview}
                 alt="Preview"
                 style={{ maxWidth: 110, maxHeight: 110 }}

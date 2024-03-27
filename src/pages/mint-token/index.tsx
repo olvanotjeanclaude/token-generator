@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextField,  Stack, Box, Typography } from '@mui/material';
+import { TextField, Stack, Box, Typography, Grid } from '@mui/material';
 import Layout from '@/components/Layout';
 import Title from "@/components/Title";
 import TokenListByOwner from '@/components/TokenListByOwner';
@@ -9,6 +9,7 @@ import LoadingButtonComponent from '@/components/LoadingButtonComponent';
 import SignatureExplorer from '@/components/SignatureExplorer';
 import CustomCard from '@/components/CustomCard';
 import useTokenMint from '@/hooks/useTokenMint';
+import MintInstruction from '@/sections/mint-token/MintInstruction';
 
 const TokenMintForm = () => {
   const {
@@ -43,7 +44,7 @@ const TokenMintForm = () => {
         </Stack>
         <Box display="flex" mt={3} mb={6} justifyContent="center">
           {publicKey ?
-            <LoadingButtonComponent label="Mint Token" isLoading={isLoading} /> :
+            <LoadingButtonComponent label="Mint Token" color='success' isLoading={isLoading} /> :
             <Typography>Before you can mint, first select your wallet please !</Typography>
           }
         </Box>
@@ -63,10 +64,18 @@ const TokenMintForm = () => {
 const TokenMintPage = () => {
   return (
     <Layout title="Token Minting">
-      <Title title="Token Minting" />
-      <CustomCard>
-        <TokenMintForm />
-      </CustomCard>
+      <Grid container spacing={2}>
+        <Grid item xs={12} md={7} lg={8}>
+          {/* <Title title="Token Minting" /> */}
+          <CustomCard>
+            <TokenMintForm />
+          </CustomCard>
+        </Grid>
+
+        <Grid item xs={12} md={5} lg={4}>
+              <MintInstruction />
+        </Grid>
+      </Grid>
     </Layout>
   );
 };

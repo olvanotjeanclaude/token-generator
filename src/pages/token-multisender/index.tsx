@@ -25,7 +25,7 @@ const Page = () => {
 
     return (
         <form autoComplete='off' onSubmit={formik.handleSubmit}>
-            <Title title="Token Multi Sender" />
+            {/* <Title title="Token Multi Sender" /> */}
 
             <Grid container>
                 <Grid item xs={12} lg={9}>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Autocomplete, TextField, Checkbox, Stack, Box, Typography } from '@mui/material';
+import { Autocomplete, TextField, Checkbox, Stack, Box, Typography, Alert } from '@mui/material';
 import { useWallet } from '@solana/wallet-adapter-react';
 import AccountManager from '@/app/AccountManager';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
@@ -8,12 +8,9 @@ import TokenListByOwner from '@/components/TokenListByOwner';
 import useTokenListByOwner from '@/hooks/useTokenListByOwner';
 import MintInfo from '@/components/MintInfo';
 
-interface Props {
-    formik: any;
-}
 
 
-const TabTokenFromWallet: React.FC<Props> = ({ formik }) => {
+const TabTokenFromWallet = ({ formik }) => {
     const {
         publicKey,
         tokens,
@@ -23,15 +20,19 @@ const TabTokenFromWallet: React.FC<Props> = ({ formik }) => {
     } = useTokenListByOwner(formik);
     return (
         <Box mt={2} mb={3} gap={2} >
-            {value && <MintInfo publicKey={value ?? ""} />}
+            {value && <MintInfo mb={2} publicKey={value ?? ""} />}
+
+            {!publicKey  && <Alert sx={{my:3}} variant="outlined" severity="warning">
+                You need to connect to your wallet before you can start to revoke authority
+            </Alert>}
 
             <Autocomplete
                 disablePortal
                 id="addressList"
+                value={value}
                 isOptionEqualToValue={(option, value) => option === value}
                 noOptionsText="No address Found"
                 options={tokens}
-                value={value}
                 onChange={handleChange}
                 onOpen={fetchTokens}
                 disabled={!publicKey}

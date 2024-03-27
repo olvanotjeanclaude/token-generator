@@ -1,4 +1,8 @@
 
+html,body{
+  margin: 0;
+  padding: 0;
+}
 body {
   background: rgb(6,9,18);
   /* background: #141721; */

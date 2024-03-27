@@ -1,4 +1,4 @@
-import { Box, Typography, Skeleton, LinearProgress, Alert } from '@mui/material';
+import { Box, Typography, Skeleton, LinearProgress, Alert, BoxProps } from '@mui/material';
 import CustomSnackbar from './CustomSnackbar';
 import useCustomSnackbar from '@/hooks/useCustomSnackbar';
 import React, { useEffect, useState } from 'react';
@@ -6,6 +6,12 @@ import AccountManager, { TMint } from '@/app/AccountManager';
 import useFormState from '@/hooks/useFormState';
 import CustomCard from './CustomCard';
 import { signatureLink } from '@/helper';
+
+type TMintInfo = {
+  publicKey: string,
+  direction?: "row" | "column"
+}
+type ExtendedBoxProps = TMintInfo & Omit<BoxProps, "publicKey">;
 
 function Row({ label, value }: { label: string, value: string | number }) {
   const isAuthority = label === "Mint Authority" || label === "Freeze Authority";
@@ -33,12 +39,12 @@ function Row({ label, value }: { label: string, value: string | number }) {
   );
 }
 
-function MintInfo({ publicKey }: { publicKey: string }) {
-  
+function MintInfo({ publicKey,...props }: ExtendedBoxProps) {
+
   const { isLoading, setIsLoading } = useFormState();
   const { message, alertSnackbar, snackbar, setSnackbar } = useCustomSnackbar();
   const [mint, setMint] = useState<TMint | null>(null);
-  
+
   useEffect(() => {
     const fetchTokenSupply = async () => {
       if (!publicKey) return;
@@ -47,7 +53,7 @@ function MintInfo({ publicKey }: { publicKey: string }) {
         const data = await AccountManager.getMint(publicKey);
         setMint(data);
       } catch (error) {
-        alertSnackbar("error", error as string);
+        // alertSnackbar("error", error as string);
         setMint(null);
       } finally {
         setIsLoading(false);
@@ -58,18 +64,17 @@ function MintInfo({ publicKey }: { publicKey: string }) {
   }, [publicKey])
 
   return (
-     mint ? <CustomCard>
-        <Box display="flex" flexDirection="column">
-          
-            <Row label="Current Supply" value={mint?.supply ?? ""} />
-            <Row label="Decimal" value={mint?.decimal ?? ""} />
-            <Row label="Mint Authority" value={mint?.mintAuthority ?? "-"} />
-            <Row label="Freeze Authority" value={mint?.freezeAuthority ?? "-"} />
-          
-        </Box>
+    mint ? <CustomCard {...props}>
+      <Box display="flex" flexDirection="column">
+        <Row label="Current Supply" value={mint?.supply ?? ""} />
+        <Row label="Decimal" value={mint?.decimal ?? ""} />
+        <Row label="Mint Authority" value={mint?.mintAuthority ?? "-"} />
+        <Row label="Freeze Authority" value={mint?.freezeAuthority ?? "-"} />
 
-        <CustomSnackbar message={message} open={snackbar} setOpen={setSnackbar} />
-      </CustomCard> :<></>
+      </Box>
+
+      <CustomSnackbar message={message} open={snackbar} setOpen={setSnackbar} />
+    </CustomCard> : <></>
   );
 }
 

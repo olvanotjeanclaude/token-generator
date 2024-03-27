@@ -13,12 +13,16 @@ const useCustomSnackbar = () => {
 
   const [snackbar, setSnackbar] = useState(false);
 
-  const alertSnackbar = (type: AlertType, text: string) => {
+  const alertSnackbar = (type: AlertType, text: string) :boolean=> {
     setMessage({
       type,
       text
     })
     setSnackbar(true);
+
+    if(type=="error") return false;
+
+    return true;
   }
 
   return {

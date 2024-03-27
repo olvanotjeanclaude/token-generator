@@ -8,7 +8,7 @@ import MintManager, { IMetadata } from '@/app/MintManger';
 
 const validationSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
-    symbol: Yup.string().required('Symbol is required').max(5, "The symbol must be less than 5"),
+    symbol: Yup.string().required('Symbol is required').max(8, "The symbol must be less than 8"),
     decimal: Yup.number().required('Decimal is required').max(10, "Cannot be more than 10").positive('Decimal must be a positive number'),
     file: Yup.string().required('File is required'),
     supply: Yup.number().required('Supply is required').positive('Supply must be a positive number'),
@@ -105,8 +105,6 @@ const useTokenCreator = () => {
             if (!values.file) {
                 errors.file = 'Please select a file';
             }
-
-            console.log(formik.errors);
 
            // @ts-ignore
             if (values.file && !['image/jpeg', 'image/png'].includes(values.file.type)) {

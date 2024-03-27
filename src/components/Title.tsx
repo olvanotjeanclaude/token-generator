@@ -3,7 +3,7 @@ import React from 'react'
 
 export default function Title({ title }: { title: string }) {
     return (
-        <Box pb={3}>
+        <Box pb={3} display="flex" justifyContent="space-between" alignItems="center">
             <Typography variant='h5'>{title}</Typography>
         </Box>
     )

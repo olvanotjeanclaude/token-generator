@@ -4,7 +4,7 @@ import useCustomSnackbar from '@/hooks/useCustomSnackbar';
 import useFormState from '@/hooks/useFormState';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useFormik } from 'formik';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 
 const validationSchema = Yup.object().shape({
@@ -12,16 +12,14 @@ const validationSchema = Yup.object().shape({
         Yup.string()
             .matches(/^[1-9A-HJ-NP-Za-km-z]+$/, 'Token address must be a valid base58 string')
     ).min(1, 'At least one address is required'),
-    freezeAuthority: Yup.boolean(),
-    mintAuthority: Yup.boolean(),
+    tokenAddress: Yup.string()
+        .matches(/^[1-9A-HJ-NP-Za-km-z]+$/, 'Token address must be a valid base58 string')
+        .min(1, 'At least one address is required'),
 });
 
 const initialValues = {
     addresses: [''],
-    freezeAuthority: false,
-    mintAuthority: false,
-    tokenAddress:"",
-    tokens: []
+    tokenAddress: "",
 };
 
 const useTokenAuthority = () => {
@@ -29,10 +27,14 @@ const useTokenAuthority = () => {
     const { wallet, publicKey } = useWallet();
     const { message, alertSnackbar, snackbar, setSnackbar } = useCustomSnackbar();
     const { response, setResponse, isLoading, setIsLoading, resetState } = useFormState();
+    const [tokens, setTokens] = useState([]);
+    const [loading, setLoading] = useState({
+        freeze: false,
+        mint: false,
+        freezeAndMint: false
+    });
 
-    const tokenAuthorization = new TokenAuthorization(wallet);
-
-    const handleTabChange = (event, newValue) =>  setTabIndex(newValue);
+    const handleTabChange = (event, newValue) => setTabIndex(newValue);
 
     const formik = useFormik({
         initialValues,
@@ -43,12 +45,26 @@ const useTokenAuthority = () => {
                 return
             }
         },
-        onSubmit: submitForm
+        onSubmit: () => { }
     });
-    
+
+    useEffect(() => {
+        const current = tabIndex == 0 ? formik.values.addresses : [formik.values.tokenAddress];
+        const uniqueTokens = Array.from(new Set(current));
+        const validBase58 = /^[1-9A-HJ-NP-Za-km-z]+$/;
+        const data = uniqueTokens.filter(address => address !== "" && validBase58.test(address));
+        setTokens(data);
+    }, [tabIndex, formik.values.addresses, formik.values.tokenAddress]);
+
 
     async function revokeFreezeAndMint() {
+        if (!isFormValid()) return false;
+
         try {
+            setLoading(prev => ({ ...prev, freezeAndMint: true }));
+            
+            const tokenAuthorization = new TokenAuthorization(wallet);
+            tokenAuthorization.setTokens(tokens);
             const result = await tokenAuthorization.revokeFreezeAndMintAuthority();
             if (result) {
                 setResponse(result);
@@ -57,12 +73,21 @@ const useTokenAuthority = () => {
             }
         } catch (error) {
             alertSnackbar("error", "Unable to revoke freeze and mint authorities");
+        } finally {
+            setLoading(prev => ({ ...prev, freezeAndMint: false }));
         }
         return null;
     };
 
+ 
     async function revokeFreeze() {
+        if (!isFormValid()) return false;
+
         try {
+            setLoading(prev => ({ ...prev, freeze: true }));
+
+            const tokenAuthorization = new TokenAuthorization(wallet);
+            tokenAuthorization.setTokens(tokens);
             const result = await tokenAuthorization.revokeFreezeAuthority();
             if (result) {
                 setResponse(result);
@@ -70,13 +95,21 @@ const useTokenAuthority = () => {
                 return result;
             }
         } catch (error) {
-            alertSnackbar("error", "An error occurred while revoking freeze authority");
+            alertSnackbar("error", error);
+        } finally {
+            setLoading(prev => ({ ...prev, freeze: false }));
         }
         return null;
     };
 
     async function revokeMint() {
+        if (!isFormValid()) return false;
+
         try {
+            setLoading(prev => ({ ...prev, mint: true }));
+
+            const tokenAuthorization = new TokenAuthorization(wallet);
+            tokenAuthorization.setTokens(tokens);
             const result = await tokenAuthorization.revokeMintAuthority();
             if (result) {
                 setResponse(result);
@@ -85,61 +118,33 @@ const useTokenAuthority = () => {
             }
         } catch (error) {
             alertSnackbar("error", "An error occurred while revoking mint authority");
+        } finally {
+            setLoading(prev => ({ ...prev, mint: false }));
         }
         return null;
     };
 
-    async function submitForm(values) {
-        if (!publicKey) return alertSnackbar("error", WalletNotConnectedError.MESSAGE);
+    function isFormValid() {
 
-        const tokens = Array.from(new Set([...values.addresses, ...values.tokens])).filter(address => address !== "");
+        if (!publicKey) return alertSnackbar("error", WalletNotConnectedError.MESSAGE);
 
         if (tokens.length == 0) return alertSnackbar("error", "Please provide the token address that you want to manage");
 
-        if (!values.freezeAuthority && !values.mintAuthority) {
-            return alertSnackbar("error", "Please select either freeze or mint authority to revoke.");
-        }
-
-        tokenAuthorization.setTokens(tokens);
-
-        try {
-            setIsLoading(true);
-
-            if (values.freezeAuthority && values.mintAuthority) {
-                const signature = await revokeFreezeAndMint();
-                // console.log(signature);
-                return
-            }
-
-            if (values.freezeAuthority) {
-                const signature = await revokeFreeze();
-                // console.log(signature);
-                return
-            }
-
-            if (values.mintAuthority) {
-                const signature = await revokeMint();
-                // console.log(signature);
-                return
-            }
-        } catch (error) {
-            alertSnackbar("error", "Unexpected error occurred");
-        }
-        finally {
-            setIsLoading(false);
-        }
+        return true;
     }
-
 
     return {
         formik,
         handleTabChange,
         tabIndex,
-        isLoading,
+        loading,
         snackbar,
         setSnackbar,
         message,
-        response
+        response,
+        revokeFreeze,
+        revokeMint,
+        revokeFreezeAndMint
     };
 };
 
