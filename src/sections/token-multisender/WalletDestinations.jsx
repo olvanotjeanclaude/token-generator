@@ -1,6 +1,4 @@
-import CustomCard from '@/components/CustomCard';
-import { Box, Divider, Stack, TextField, Typography } from '@mui/material'
-import { FormikProps } from 'formik';
+import { Box, Typography } from '@mui/material'
 import React from 'react'
 import MintAddressAmount from './MintAddressAmount';
 

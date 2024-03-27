@@ -1,8 +1,6 @@
 import axios from "axios";
 import { IMetadata } from "./MintManger";
 
-
-
 class NFTStorage {
     public async upload(file: Blob): Promise<string> {
         const baseUrl = "https://api.nft.storage";

@@ -6,6 +6,7 @@ import CustomCard from './CustomCard';
 import useCustomSnackbar from '@/hooks/useCustomSnackbar';
 import CustomSnackbar from './CustomSnackbar';
 import MintInfo from './MintInfo';
+import { customColor } from '@/constants';
 
 function TokenListByOwner({ formik }) {
     const [value, setValue] = React.useState(null);
@@ -16,7 +17,7 @@ function TokenListByOwner({ formik }) {
         if (!publicKey) return;
 
         const tokens = await AccountManager.getTokens(publicKey);
-        
+
         setTokens(tokens);
     }
 
@@ -46,20 +47,21 @@ function TokenListByOwner({ formik }) {
 
 
 
-    const handleChange =  (event, newValue) => {
+    const handleChange = (event, newValue) => {
         setValue(newValue);
         formik.setFieldValue("tokenAddress", newValue);
     };
 
     return (
         <Stack gap={2}>
-           {publicKey&& <MintInfo publicKey={value} />}
+            {publicKey && <MintInfo publicKey={value} />}
             <Autocomplete
                 disablePortal
                 id="addressList"
                 size='large'
                 value={value}
-                isOptionEqualToValue={(option, value) => option.id === value.id}
+                getOptionLabel={option => option}
+                isOptionEqualToValue={(option, value) => option === value}
                 noOptionsText="No address Found"
                 options={tokens}
                 onChange={handleChange}
@@ -76,7 +78,7 @@ function TokenListByOwner({ formik }) {
                 )}
             />
 
-        
+
         </Stack>
     );
 }

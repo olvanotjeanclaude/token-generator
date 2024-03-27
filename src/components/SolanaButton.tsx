@@ -35,7 +35,7 @@ export default function SolanaButton() {
     }, [connection, publicKey,wallet]);
 
     return (
-        <Box display="flex" alignItems="center" gap={2} justifyContent="end">
+        <Box display="flex" alignItems="center" py={1} minWidth={190} justifyContent="end">
             <WalletMultiButtonDynamic />
         </Box>
     )

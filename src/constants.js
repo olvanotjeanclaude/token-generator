@@ -1,8 +1,14 @@
 import { Connection, clusterApiUrl } from "@solana/web3.js";
 
-export const CLUSTER = "devnet";
+const clusters = {
+    devnet:"devnet",
+    testnet:"testnet",
+    mainnet:"mainnet-beta",
+};
 
-export const CLUSTER_URL = CLUSTER === "devnet" ? clusterApiUrl("devnet") : "http://127.0.0.1:8899";
+export const CLUSTER = clusters["testnet"];
+
+export const CLUSTER_URL =  clusterApiUrl(CLUSTER) 
 
 export const connection = new Connection(CLUSTER_URL, "confirmed");
 
@@ -15,7 +21,7 @@ export const customColor = {
 
 export const config = {
     sidebar: {
-        width:250,
+        width:270,
         bgActive: "#16181C"
     }
 };

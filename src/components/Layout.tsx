@@ -19,18 +19,11 @@ export default function Layout({ children, title }: LayoutProps) {
         <title>{title}</title>
       </Head>
 
-
-
-      {/* <Header /> */}
-
-
-
       <Box>
         <Box display="flex">
           <Sidebar />
           <Content
            maxWidth="1080px"
-            // position="relative"
             ml={{ sm: `${config.sidebar.width}px` }}>
             <Header />
             <Box  p={1.8} mt={1}>

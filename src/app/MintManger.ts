@@ -69,21 +69,17 @@ class MintManager {
 
             if (amount == 0) throw "Amount must be greater than zero";
 
-            const feePercentage = 1;
-            const feeAmount = Math.floor(amount * feePercentage / 100);
-
             const signature = await createAndMint(this.umi, {
                 mint: this.mint,
                 authority: this.umi.identity,
                 name: this.metadata.name,
                 symbol: this.metadata.symbol,
                 uri: this.uri,
-                sellerFeeBasisPoints: percentAmount(feePercentage),
+                sellerFeeBasisPoints: percentAmount(0),
                 decimals: decimals,
                 amount: amount * Math.pow(10, decimals),
                 tokenStandard: TokenStandard.Fungible,
             })
-                // .add()
                 .sendAndConfirm(this.umi)
                 .then(() => { return this.mint.publicKey.toString() })
                 .catch(err => {

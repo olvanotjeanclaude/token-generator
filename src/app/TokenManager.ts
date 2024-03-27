@@ -3,6 +3,7 @@ import { Account, MINT_SIZE, TOKEN_PROGRAM_ID, createAssociatedTokenAccountInstr
 import { Wallet } from "@solana/wallet-adapter-react";
 import { Connection, Keypair, PublicKey, SystemProgram, Transaction, TransactionSignature } from "@solana/web3.js";
 import pRetry from "p-retry";
+import BaseToken from "./BaseToken";
 
 export interface IMultiSender {
     address: string,
@@ -14,16 +15,14 @@ interface ITokenTransfer {
     amount: number
 }
 
-class TokenManager {
+class TokenManager  extends BaseToken{
     private mint: PublicKey;
-    private connection: Connection;
-    private wallet: Wallet;
 
-    constructor(mint: PublicKey, wallet: Wallet) {
+    constructor(mint:PublicKey, wallet: Wallet){
+        super(wallet);
         this.mint = mint;
-        this.connection = new Connection(CLUSTER_URL);
-        this.wallet = wallet;
     }
+
 
     public getMintAccount() {
         return getMint(this.connection, this.mint);
@@ -167,7 +166,7 @@ class TokenManager {
             connection,
             { signers: [mintKeypair] });
 
-        console.log({ mint: mintKeypair.publicKey.toBase58() })
+        // console.log({ mint: mintKeypair.publicKey.toBase58() })
 
         return mintKeypair
     }

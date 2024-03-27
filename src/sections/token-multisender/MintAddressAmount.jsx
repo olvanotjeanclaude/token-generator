@@ -4,20 +4,17 @@ import React from 'react'
 
 export default function MintAddressAmount({ addresses }) {
     return (
-        <Stack overflow="auto" gap={.5}>
-            {
-                addresses?.map((value, key) => (
-                    <CustomCard p={1} key={key} display="flex" justifyContent="space-between">
-                        <Typography color="secondary" variant='caption'>
-                            {value.address}
-                        </Typography>
-                        <Typography color="secondary" variant='caption'>
-                            {value.amount}
-                        </Typography>
-                    </CustomCard>
-                ))
-            }
-
+        <Stack gap={0.5}>
+            {addresses?.map((value, key) => (
+                <CustomCard p={1} key={key} display="flex" justifyContent="space-between">
+                    <Typography color="secondary" variant='caption' style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {value.address}
+                    </Typography>
+                    <Typography color="secondary" textAlign="end" minWidth={50} mr={2} variant='caption'>
+                        {value.amount}
+                    </Typography>
+                </CustomCard>
+            ))}
         </Stack>
     )
 }

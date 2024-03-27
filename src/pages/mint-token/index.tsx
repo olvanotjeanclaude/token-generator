@@ -4,12 +4,11 @@ import Layout from '@/components/Layout';
 import Title from "@/components/Title";
 import TokenListByOwner from '@/components/TokenListByOwner';
 import CustomSnackbar from '@/components/CustomSnackbar';
-import Errors from '@/components/Errors';
 import LoadingButtonComponent from '@/components/LoadingButtonComponent';
 import SignatureExplorer from '@/components/SignatureExplorer';
-import CustomCard from '@/components/CustomCard';
 import useTokenMint from '@/hooks/useTokenMint';
 import MintInstruction from '@/sections/mint-token/MintInstruction';
+import NoWalletConnected from '@/components/NoWalletConnected';
 
 const TokenMintForm = () => {
   const {
@@ -45,7 +44,7 @@ const TokenMintForm = () => {
         <Box display="flex" mt={3} mb={6} justifyContent="center">
           {publicKey ?
             <LoadingButtonComponent label="Mint Token" color='success' isLoading={isLoading} /> :
-            <Typography>Before you can mint, first select your wallet please !</Typography>
+            <NoWalletConnected action='mint token' />
           }
         </Box>
 
@@ -64,16 +63,14 @@ const TokenMintForm = () => {
 const TokenMintPage = () => {
   return (
     <Layout title="Token Minting">
+      <Title title="Token Minting" />
       <Grid container spacing={2}>
-        <Grid item xs={12} md={7} lg={8}>
-          {/* <Title title="Token Minting" /> */}
-          <CustomCard>
-            <TokenMintForm />
-          </CustomCard>
+        <Grid item xs={12} md={7}>
+          <TokenMintForm />
         </Grid>
 
-        <Grid item xs={12} md={5} lg={4}>
-              <MintInstruction />
+        <Grid item xs={12} md={5}>
+          <MintInstruction />
         </Grid>
       </Grid>
     </Layout>

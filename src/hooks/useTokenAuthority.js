@@ -26,7 +26,7 @@ const useTokenAuthority = () => {
     const [tabIndex, setTabIndex] = useState(0);
     const { wallet, publicKey } = useWallet();
     const { message, alertSnackbar, snackbar, setSnackbar } = useCustomSnackbar();
-    const { response, setResponse, isLoading, setIsLoading, resetState } = useFormState();
+    const { response, setResponse } = useFormState();
     const [tokens, setTokens] = useState([]);
     const [loading, setLoading] = useState({
         freeze: false,

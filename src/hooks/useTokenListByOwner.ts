@@ -1,6 +1,6 @@
 import AccountManager from "@/app/AccountManager";
 import { useWallet } from "@solana/wallet-adapter-react";
-import React, { SyntheticEvent, useEffect, useState } from "react";
+import React, {  useEffect, useState } from "react";
 
 const useTokenListByOwner = ( formik : any) => {
     const [value, setValue] = React.useState<null | string>(null);

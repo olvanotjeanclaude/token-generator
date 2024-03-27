@@ -1,12 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { Autocomplete, TextField, Checkbox, Stack, Box, Typography, Alert } from '@mui/material';
-import { useWallet } from '@solana/wallet-adapter-react';
-import AccountManager from '@/app/AccountManager';
-import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import TokenListByOwner from '@/components/TokenListByOwner';
+import React from 'react';
+import { Autocomplete, TextField, Checkbox, Stack, Box } from '@mui/material';
 import useTokenListByOwner from '@/hooks/useTokenListByOwner';
 import MintInfo from '@/components/MintInfo';
+import NoWalletConnected from '@/components/NoWalletConnected';
 
 
 
@@ -22,9 +18,7 @@ const TabTokenFromWallet = ({ formik }) => {
         <Box mt={2} mb={3} gap={2} >
             {value && <MintInfo mb={2} publicKey={value ?? ""} />}
 
-            {!publicKey  && <Alert sx={{my:3}} variant="outlined" severity="warning">
-                You need to connect to your wallet before you can start to revoke authority
-            </Alert>}
+            {!publicKey  && <NoWalletConnected action='revoke authority' />}
 
             <Autocomplete
                 disablePortal

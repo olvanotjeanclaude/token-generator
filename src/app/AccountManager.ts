@@ -1,6 +1,6 @@
 import { CLUSTER_URL } from "@/constants";
 import { AccountLayout, TOKEN_PROGRAM_ID, getMint } from "@solana/spl-token";
-import { Connection, PublicKey, Transaction } from "@solana/web3.js";
+import { Connection, PublicKey } from "@solana/web3.js";
 
 
 export type TMint = {
@@ -11,10 +11,10 @@ export type TMint = {
 };
 
 class AccountManager {
-    public static async getTokens(user: PublicKey): Promise<string[]> {
+    public static async getTokens(token: PublicKey): Promise<string[]> {
         const connection = new Connection(CLUSTER_URL);
         const tokenAccounts = await connection.getTokenAccountsByOwner(
-            user,
+            token,
             {
                 programId: TOKEN_PROGRAM_ID,
             }

@@ -69,9 +69,8 @@ const useTokenMultiSender  = () =>{
                 .filter(value => {
                     const base58Regex = /^[1-9A-HJ-NP-Za-km-z]+$/;
                     return base58Regex.test(value.address) && value.amount;
-                })
-                .slice(0, 3);
-
+                });
+                
             const uniqueAddresses = Array.from(new Set(addresses.map(value => value.address)))
 
             if (uniqueAddresses.length != addresses.length) return alertSnackbar("error", "Duplicate addresses are not allowed");

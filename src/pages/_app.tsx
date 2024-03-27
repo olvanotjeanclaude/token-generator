@@ -16,13 +16,12 @@ import LayoutContextProvider from '@/context/LayoutContext';
 export default function MyApp({ Component, pageProps }: any) {
     const theme = createTheme({
         palette: {
-            mode: 'dark', // Set the palette type to 'dark'
+            mode: 'dark', 
         },
         components: {
             MuiTextField: {
                 defaultProps: {
                     variant: "filled",
-                    size: "small"
                 }
             },
             MuiCard: {
@@ -31,7 +30,7 @@ export default function MyApp({ Component, pageProps }: any) {
                         background: customColor.second
                     }
                 }
-            }
+            },
         }
     });
 

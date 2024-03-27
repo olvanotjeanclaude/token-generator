@@ -6,7 +6,6 @@ import DropzoneForm from '@/components/DropzoneForm';
 import CustomSnackbar from '@/components/CustomSnackbar';
 import LoadingButtonComponent from '@/components/LoadingButtonComponent';
 import SignatureExplorer from '@/components/SignatureExplorer';
-import CustomCard from '@/components/CustomCard';
 import useTokenCreator from '@/hooks/useTokenCreator';
 import TokenCreatorInstruction from '@/sections/token-creator/TokenCreatorInstruction';
 
@@ -21,7 +20,6 @@ const Page = () => {
   } = useTokenCreator();
   return (
     <>
-      {/* <Title title="Token Generator" /> */}
       <Stack component="form" autoComplete='off' onSubmit={formik.handleSubmit}>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={7}>
@@ -176,8 +174,9 @@ const Page = () => {
 
 const TokenCreator = () => {
   return <Layout title="Token Generator">
+    <Title title="Token Generator" />
     <Grid container spacing={2}>
-      <Grid item xs={12}  md={8}>
+      <Grid item xs={12} md={8}>
         <Page />
       </Grid>
       <Grid item xs={12} mt={{ xs: 5, md: 0 }} md={4}>

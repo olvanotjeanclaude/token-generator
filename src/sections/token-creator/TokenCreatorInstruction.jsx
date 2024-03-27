@@ -1,11 +1,13 @@
 import React from 'react';
-import { Typography, Link, Stack, CardContent, Card } from '@mui/material';
+import { Typography, Stack, CardContent, Card, Box } from '@mui/material';
 import CustomCard from '@/components/CustomCard';
+import Link from 'next/link';
 
 function TokenCreatorInstruction() {
   return (
     <Card>
       <CardContent>
+      <Typography variant='h6' color="primary">How To Use?</Typography>
         <Stack gap={1.33} pl={2} component="ol">
           <Typography component="li">
             <strong>Connect</strong> your <strong>wallet</strong> to be able to
@@ -43,25 +45,28 @@ function TokenCreatorInstruction() {
             Discord.
           </Typography>
 
-          <Typography component="li">
-            <Link
-              href="/revoke-authority"
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              revoke freeze authority </Link> and
-            <Link
-             href="/revoke-authority"
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              revoke mint authority
-            </Link>
-            .
-          </Typography>
+          <Box component="li" display="flex" flexWrap="wrap">
+            <Typography
+              component={Link}
+              sx={{textDecoration:"none"}}
+              href="/authority-management"
+              color="primary"
+            >Revoke freeze authority
+            </Typography>
+
+            <Typography mx={1}>and</Typography>
+
+            <Typography
+              component={Link}
+              sx={{textDecoration:"none"}}
+              href="/authority-management"
+              color="primary"
+            >Revoke Mint authority
+            </Typography>
+          </Box>
 
           <Typography component="li">
-            <strong>Click</strong> on "Create Token" and <strong>accept</strong> the <strong>transaction</strong>.
+            <strong>Click</strong> on "Generate Token" and <strong>accept</strong> the <strong>transaction</strong>.
           </Typography>
         </Stack>
       </CardContent>

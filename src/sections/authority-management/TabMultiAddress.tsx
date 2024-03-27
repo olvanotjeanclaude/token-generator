@@ -1,5 +1,5 @@
 import React from 'react';
-import { Stack, Box, TextField, Button, FormControlLabel, Checkbox } from '@mui/material';
+import { Stack, Box, TextField, Button } from '@mui/material';
 import { FormikValues } from 'formik';
 import MintInfo from '@/components/MintInfo';
 import CustomSnackbar from '@/components/CustomSnackbar';

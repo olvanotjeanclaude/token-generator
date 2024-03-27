@@ -4,7 +4,6 @@ class WalletNotConnectedError extends Error {
   constructor(message: string = WalletNotConnectedError.MESSAGE) {
     super(message);
     this.name = 'WalletNotConnectedError';
-    // Set the prototype explicitly.
     Object.setPrototypeOf(this, WalletNotConnectedError.prototype);
   }
 

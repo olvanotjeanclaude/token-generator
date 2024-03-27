@@ -3,13 +3,12 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
 
 const MintInstruction = () => {
   return (
     <Card>
       <CardContent>
+      <Typography variant='h6' color="primary">How To Use?</Typography>
         <Stack gap={1.33} pl={2} component="ol">
           <Typography component="li">
             <strong>Connect</strong> your <strong>wallet</strong> to be able to

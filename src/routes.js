@@ -15,15 +15,7 @@ const routes = [
     {
         title: "Authority Management",
         path: "/authority-management"
-    },
-    // {
-    //     title: "Sol Airdrop",
-    //     path: "/sol-airdrop"
-    // },
-    //  {
-    //     title: "Liquidity Pool",
-    //     path: "/liquidity-pool"
-    // }
+    }
 ];
 
 

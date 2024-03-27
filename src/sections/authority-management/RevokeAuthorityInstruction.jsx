@@ -3,13 +3,13 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
-import { CardHeader } from '@mui/material';
 
-const RevokeAuthorityInstruction = ({ action }) => {
+const RevokeAuthorityInstruction = () => {
+  const action = "freeze authority or mint authority or freeze and mint authority";
   return (
     <Card>
       <CardContent>
-        <Typography variant='h6' color="primary">{action}</Typography>
+        <Typography variant='h6' color="primary">How To Use?</Typography>
         <Stack gap={1.33} pl={2} component="ol">
           <Typography component="li">
             <strong>Connect</strong> your <strong>wallet</strong> to be able to
@@ -21,7 +21,7 @@ const RevokeAuthorityInstruction = ({ action }) => {
           </Typography>
 
           <Typography component="li">
-            * To Revoke the {action} Authority you should use the wallet that created that Token (Authority)
+            To Revoke the {action} you should use the wallet that created that Token (Authority)
           </Typography>
 
           <Typography component="li">
