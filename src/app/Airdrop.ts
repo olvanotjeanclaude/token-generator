@@ -15,6 +15,41 @@ export interface IAirdrop {
 }
 
 class Airdrop {
+    public static async Instruction(
+        from: PublicKey,
+        destination: PublicKey,
+        amount: number): Promise<Transaction> {
+        if (!destination) throw "Please provide the destination wallet";
+
+        const connection = new Connection(CLUSTER_URL);
+
+        const account = await connection.getAccountInfo(destination);
+
+        const transactions = new Transaction();
+
+        if (account) {
+            transactions.add(
+                SystemProgram.transfer({
+                    fromPubkey: from,
+                    toPubkey: destination,
+                    lamports: amount * LAMPORTS_PER_SOL
+                })
+            );
+        }
+        else {
+            transactions.add(
+                SystemProgram.createAccount({
+                    fromPubkey: from,
+                    newAccountPubkey: destination,
+                    lamports: amount * LAMPORTS_PER_SOL,
+                    space: 0,
+                    programId: SystemProgram.programId,
+                }));
+        }
+
+        return transactions;
+    }
+
     public static async createNewAccountAndFund(user: Keypair, amount: number, signer: Keypair): Promise<string> {
         if (!user) throw "Please provide the user keypair";
 

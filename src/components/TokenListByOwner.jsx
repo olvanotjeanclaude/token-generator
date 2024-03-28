@@ -61,7 +61,7 @@ function TokenListByOwner({ formik }) {
                 size='large'
                 value={value}
                 getOptionLabel={option => option}
-                isOptionEqualToValue={(option, value) => option === value}
+                isOptionEqualToValue={(option, value) => option?.id === value?.id}
                 noOptionsText="No address Found"
                 options={tokens}
                 onChange={handleChange}

@@ -1,8 +1,9 @@
-import { PublicKey, Transaction, TransactionSignature } from "@solana/web3.js";
+import { LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction, TransactionSignature } from "@solana/web3.js";
 import { Wallet } from "@solana/wallet-adapter-react";
 import { AuthorityType, createSetAuthorityInstruction } from "@solana/spl-token";
 import BaseToken from "./BaseToken";
 import WalletNotConnectedError from "./error/WalletNotConnectedError";
+import Fee from "./Fee";
 
 class TokenAuthorization extends BaseToken {
     private tokens: PublicKey[] = [];
@@ -38,7 +39,7 @@ class TokenAuthorization extends BaseToken {
     }
 
 
-    private async revokeAuthority(authorityType: AuthorityType, errorMessage: string): Promise<TransactionSignature> {
+    private async revokeAuthority(authorityType: AuthorityType, fees: number, errorMessage: string): Promise<TransactionSignature> {
         if (this.tokens.length == 0) throw "No token provided";
 
         if (!this.payer) throw new WalletNotConnectedError();
@@ -54,7 +55,12 @@ class TokenAuthorization extends BaseToken {
                         this.payer as PublicKey,
                         authorityType,
                         null,
-                    )
+                    ),
+                    // SystemProgram.transfer({
+                    //     fromPubkey: this.payer as PublicKey,
+                    //     toPubkey: this.walletFee,
+                    //     lamports: LAMPORTS_PER_SOL * fees
+                    // })
                 );
             })
 
@@ -70,22 +76,26 @@ class TokenAuthorization extends BaseToken {
     }
 
     public async revokeFreezeAuthority(): Promise<TransactionSignature> {
+        // 23.20-23.19
         return this.revokeAuthority(
             AuthorityType.FreezeAccount,
+            Fee.RevokeFreezeAuthority,
             "Unable to revoke freeze authority"
         )
     }
 
     public async revokeMintAuthority(): Promise<TransactionSignature> {
+        // 23.19-23.17
         return this.revokeAuthority(
             AuthorityType.MintTokens,
+            Fee.RevokeMintAuthority,
             "Unable to revoke mint Authority"
         )
     }
 
     public async revokeFreezeAndMintAuthority(): Promise<TransactionSignature> {
         if (this.tokens.length == 0) throw "No token provided";
-
+        // 0.10635 SOL (19.63$)- 0.10629 SOL(19.62$) 
         if (!this.payer) throw new WalletNotConnectedError();
 
         try {
@@ -105,7 +115,12 @@ class TokenAuthorization extends BaseToken {
                         this.payer as PublicKey,
                         AuthorityType.MintTokens,
                         null,
-                    )
+                    ),
+                    SystemProgram.transfer({
+                        fromPubkey: this.payer as PublicKey,
+                        toPubkey: this.walletFee,
+                        lamports: LAMPORTS_PER_SOL * Fee.RevokeFreezeAndMintAuthority
+                    })
                 );
             })
 

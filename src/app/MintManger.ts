@@ -1,14 +1,18 @@
 import base58 from 'bs58';
-import { percentAmount, generateSigner, Umi, KeypairSigner } from '@metaplex-foundation/umi'
+import { percentAmount, generateSigner, Umi, KeypairSigner, publicKey, createAmount, sol } from '@metaplex-foundation/umi'
 import { TokenStandard, createAndMint } from '@metaplex-foundation/mpl-token-metadata'
 import { mplCandyMachine } from "@metaplex-foundation/mpl-candy-machine";
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
-import {  TransactionSignature } from '@solana/web3.js';
+import { LAMPORTS_PER_SOL, TransactionSignature } from '@solana/web3.js';
 import "@solana/web3.js";
 import { CLUSTER_URL } from '@/constants';
 import { Wallet } from '@solana/wallet-adapter-react';
 import { walletAdapterIdentity } from "@metaplex-foundation/umi-signer-wallet-adapters";
 import NFTStorage from './NFTStorage';
+import { transferSol, addMemo, mplToolbox } from '@metaplex-foundation/mpl-toolbox';
+import Fee from './Fee';
+import BaseToken from './BaseToken';
+
 
 export interface IMetadata {
     name: string;
@@ -28,15 +32,16 @@ export interface IMetadata {
     };
 }
 
-class MintManager {
+class MintManager extends BaseToken {
     private umi: Umi;
     private mint: KeypairSigner;
     private metadata: IMetadata;
     private uri: string | null;
 
-    private wallet: Wallet;
 
     constructor(wallet: Wallet, metaData: IMetadata) {
+        super(wallet);
+
         this.umi = createUmi(CLUSTER_URL);
         this.mint = generateSigner(this.umi);
         this.wallet = wallet;
@@ -44,8 +49,8 @@ class MintManager {
         this.uri = null;
 
         this.umi.use(walletAdapterIdentity(wallet.adapter));
-
         this.umi.use(mplCandyMachine());
+        this.umi.use(mplToolbox());
     }
 
 
@@ -80,6 +85,12 @@ class MintManager {
                 amount: amount * Math.pow(10, decimals),
                 tokenStandard: TokenStandard.Fungible,
             })
+            // 23.17$ - 19.63 $
+            // 0.12552 SOL - 0.10635 
+                // .add(transferSol(this.umi, {
+                //     destination: publicKey(this.walletFee.toBase58() as string),
+                //     amount: sol(Fee.TokenCreator)
+                // }))
                 .sendAndConfirm(this.umi)
                 .then(() => { return this.mint.publicKey.toString() })
                 .catch(err => {
@@ -89,7 +100,7 @@ class MintManager {
 
             return signature
         } catch (error) {
-            if(typeof error=="string") throw error;
+            if (typeof error == "string") throw error;
 
             throw "Unable to create token. Please try again later";
         }

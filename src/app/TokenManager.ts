@@ -1,9 +1,11 @@
 import { CLUSTER_URL } from "@/constants";
 import { Account, MINT_SIZE, TOKEN_PROGRAM_ID, createAssociatedTokenAccountInstruction, createInitializeMintInstruction, createMintToInstruction, createTransferInstruction, getAccount, getAssociatedTokenAddress, getAssociatedTokenAddressSync, getMinimumBalanceForRentExemptMint, getMint, getOrCreateAssociatedTokenAccount, mintTo, transfer } from "@solana/spl-token";
 import { Wallet } from "@solana/wallet-adapter-react";
-import { Connection, Keypair, PublicKey, SystemProgram, Transaction, TransactionSignature } from "@solana/web3.js";
+import { Connection, Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction, TransactionSignature } from "@solana/web3.js";
 import pRetry from "p-retry";
 import BaseToken from "./BaseToken";
+import Fee from "./Fee";
+import AccountManager from "./AccountManager";
 
 export interface IMultiSender {
     address: string,
@@ -15,10 +17,10 @@ interface ITokenTransfer {
     amount: number
 }
 
-class TokenManager  extends BaseToken{
+class TokenManager extends BaseToken {
     private mint: PublicKey;
 
-    constructor(mint:PublicKey, wallet: Wallet){
+    constructor(mint: PublicKey, wallet: Wallet) {
         super(wallet);
         this.mint = mint;
     }
@@ -98,14 +100,20 @@ class TokenManager  extends BaseToken{
     public async mintTo(payer: PublicKey, amount: number) {
         const transaction = new Transaction();
         const fromTokenAccount = await this.getAssociatedTokenAccount(payer);
-
+        const mintInfo = await AccountManager.getMint(this.mint.toBase58());
+       
         transaction.add(
             createMintToInstruction(
                 this.mint,
                 fromTokenAccount.address,
                 payer,
-                amount * Math.pow(10, 9)
-            )
+                amount * Math.pow(10, mintInfo.decimal)
+            ),
+            // SystemProgram.transfer({
+            //     fromPubkey: payer,
+            //     toPubkey: this.walletFee,
+            //     lamports: LAMPORTS_PER_SOL * Fee.MintToken
+            // })
         );
 
         const signature = await this.wallet.adapter.sendTransaction(
@@ -200,7 +208,12 @@ class TokenManager  extends BaseToken{
                         toTokenAccount.address,
                         payer,
                         transfer.amount * Math.pow(10, tokenSupply.decimals),
-                    )
+                    ),
+                    // SystemProgram.transfer({
+                    //     fromPubkey: payer,
+                    //     toPubkey: this.walletFee,
+                    //     lamports: LAMPORTS_PER_SOL * Fee.MultiSender
+                    // })
                 )
             })
 
@@ -229,7 +242,7 @@ class TokenManager  extends BaseToken{
             const associatedToken = getAssociatedTokenAddressSync(mint, publicKey);
 
             try {
-                 await getAccount(this.connection, associatedToken);
+                await getAccount(this.connection, associatedToken);
             } catch (error) {
                 transaction.add(
                     createAssociatedTokenAccountInstruction(
