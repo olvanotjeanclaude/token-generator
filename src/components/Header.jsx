@@ -5,6 +5,7 @@ import Wrapper from './Wrapper'
 import { config, customColor } from '@/constants'
 import MenuIcon from '@mui/icons-material/Menu';
 import useLayoutContext from '@/hooks/useLayoutContext'
+import ToggleRpcMode from './ToggleRpcMode'
 
 export default function Header() {
     const { isSidebarOpen, setIsSidebarOpen } = useLayoutContext();
@@ -35,7 +36,8 @@ export default function Header() {
                     <MenuIcon sx={{ fontSize: "40px" }} />
                 </IconButton>
             </Box>
-            <Box>
+            <Box display="flex" gap={2} alignItems="center">
+                <ToggleRpcMode />
                 <SolanaButton />
             </Box>
         </Box>

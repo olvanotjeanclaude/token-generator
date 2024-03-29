@@ -1,4 +1,3 @@
-import { CLUSTER, CLUSTER_URL } from "../constants";
 import {
     Connection,
     Keypair,
@@ -6,8 +5,8 @@ import {
     Transaction,
     SystemProgram,
     sendAndConfirmTransaction,
-    PublicKey,
 } from "@solana/web3.js";
+import { RpcMode } from "./types/Rpc";
 
 export interface IAirdrop {
     amount: number,
@@ -15,47 +14,12 @@ export interface IAirdrop {
 }
 
 class Airdrop {
-    public static async Instruction(
-        from: PublicKey,
-        destination: PublicKey,
-        amount: number): Promise<Transaction> {
-        if (!destination) throw "Please provide the destination wallet";
-
-        const connection = new Connection(CLUSTER_URL);
-
-        const account = await connection.getAccountInfo(destination);
-
-        const transactions = new Transaction();
-
-        if (account) {
-            transactions.add(
-                SystemProgram.transfer({
-                    fromPubkey: from,
-                    toPubkey: destination,
-                    lamports: amount * LAMPORTS_PER_SOL
-                })
-            );
-        }
-        else {
-            transactions.add(
-                SystemProgram.createAccount({
-                    fromPubkey: from,
-                    newAccountPubkey: destination,
-                    lamports: amount * LAMPORTS_PER_SOL,
-                    space: 0,
-                    programId: SystemProgram.programId,
-                }));
-        }
-
-        return transactions;
-    }
-
-    public static async createNewAccountAndFund(user: Keypair, amount: number, signer: Keypair): Promise<string> {
+    public static async createNewAccountAndFund(connectionUrl: string, user: Keypair, amount: number, signer: Keypair): Promise<string> {
         if (!user) throw "Please provide the user keypair";
 
         const publicKey = user.publicKey;
 
-        const connection = new Connection(CLUSTER_URL);
+        const connection = new Connection(connectionUrl);
 
         const account = await connection.getAccountInfo(publicKey);
 
@@ -83,19 +47,15 @@ class Airdrop {
 
         const signature = await sendAndConfirmTransaction(connection, transactions, [signer, user]);
 
-        // Airdrop.log(signature);
-        //    return `Account ${user.publicKey.toBase58()} created and funded ${amount} SOL successfully. Transaction ID: ${signature}`
-
-
         return signature;
     }
 
-    public static async sendMultiple(wallets: Array<IAirdrop>, signer: Keypair): Promise<void> {
+    public static async sendMultiple(connectionUrl: string, wallets: Array<IAirdrop>, signer: Keypair): Promise<void> {
         if (wallets.length == 0) throw "No wallet found!";
 
         try {
             wallets.forEach(async wallet => {
-                await Airdrop.createNewAccountAndFund(wallet.keypair, wallet.amount, signer);
+                await Airdrop.createNewAccountAndFund(connectionUrl, wallet.keypair, wallet.amount, signer);
             });
         } catch (error) {
             console.log(error);
@@ -104,39 +64,26 @@ class Airdrop {
 
     }
 
-    public static feeAmountTransaction(buyerWallet: PublicKey, feePercent = 1) {
-        return SystemProgram.transfer({
-            fromPubkey: buyerWallet,
-            toPubkey: new PublicKey("4V47DLnmBFCczcXgRCMcquwoppye9mdUT2Aa3XMDrexy"), //wallet 1
-            lamports: (feePercent / 100) * LAMPORTS_PER_SOL, // Specify amount of SOL to transfer
-        })
-    }
 
-
-    public static async send(wallet: IAirdrop) {
+    public static async send(connectionUrl: string, wallet: IAirdrop) {
         if (!wallet) throw "Wallet invalid";
 
         const publicKey = wallet.keypair.publicKey;
 
-        // console.log(`airdroping to ${publicKey.toBase58()}...`)
-
-        const connection = new Connection(CLUSTER_URL);
+        const connection = new Connection(connectionUrl);
 
         return await connection.requestAirdrop(
             publicKey,
             wallet.amount * LAMPORTS_PER_SOL,
-        ).then(airdropSignature => {
-            // Airdrop.log(airdropSignature);
-            return airdropSignature;
-        })
+        )
             .catch((e) => {
                 throw `Unable to aidrop to ${wallet.keypair.publicKey};`
             })
     };
 
-    public static log(signature: string) {
+    public static log(cluster: RpcMode, signature: string) {
         console.log(`Transaction Id: ${signature}`);
-        console.log(`https://explorer.solana.com/tx/${signature}?cluster=${CLUSTER}`)
+        console.log(`https://explorer.solana.com/tx/${signature}?cluster=${cluster}`)
     }
 
 }

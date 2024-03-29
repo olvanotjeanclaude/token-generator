@@ -1,10 +1,11 @@
-import { Wallet, useWallet } from "@solana/wallet-adapter-react";
+import { Wallet, useConnection, useWallet } from "@solana/wallet-adapter-react";
 import useCustomSnackbar from "./useCustomSnackbar";
 import useFormState from "./useFormState";
 import { useFormik } from "formik";
 import * as Yup from 'yup';
 import { PublicKey } from "@solana/web3.js";
 import TokenManager from "@/app/TokenManager";
+import useRpc from "./useRpc";
 
 const validationSchema = Yup.object().shape({
     tokenAddress: Yup.string().required('Token Address is required'),
@@ -21,8 +22,8 @@ const initialValues = {
 const useTokenMint = () => {
     const { wallet, publicKey } = useWallet();
     const { message, setMessage, alertSnackbar, snackbar, setSnackbar } = useCustomSnackbar();
-    const {errors,setErrors, response, setResponse, isLoading, setIsLoading, resetState } = useFormState();
-
+    const { errors, setErrors, response, setResponse, isLoading, setIsLoading, resetState } = useFormState();
+    const { rpcUrl } = useRpc();
     const formik = useFormik({
         initialValues,
         validationSchema,
@@ -36,9 +37,9 @@ const useTokenMint = () => {
 
                 const mint = new PublicKey(values.tokenAddress);
 
-                const tokenManager = new TokenManager(mint, wallet as Wallet)
+                const tokenManager = new TokenManager(rpcUrl, mint, wallet as Wallet)
 
-                const signature = await tokenManager.mintTo(publicKey, parseInt(values.amount));
+                const signature = await tokenManager.mintTo(rpcUrl, publicKey, parseInt(values.amount));
 
                 if (signature) {
                     setMessage({
@@ -52,7 +53,7 @@ const useTokenMint = () => {
                 }
             } catch (error) {
                 setErrors(error as string);
-              return alertSnackbar("error",error as string);
+                return alertSnackbar("error", error as string);
             }
             finally {
                 setIsLoading(false);

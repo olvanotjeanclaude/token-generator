@@ -2,10 +2,11 @@ import TokenAuthorization from '@/app/TokenAuthorization';
 import WalletNotConnectedError from '@/app/error/WalletNotConnectedError';
 import useCustomSnackbar from '@/hooks/useCustomSnackbar';
 import useFormState from '@/hooks/useFormState';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { Wallet, useWallet } from '@solana/wallet-adapter-react';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
+import useRpc from './useRpc';
 
 const validationSchema = Yup.object().shape({
     addresses: Yup.array().of(
@@ -26,21 +27,24 @@ const useTokenAuthority = () => {
     const [tabIndex, setTabIndex] = useState(0);
     const { wallet, publicKey } = useWallet();
     const { message, alertSnackbar, snackbar, setSnackbar } = useCustomSnackbar();
+    const {rpcUrl} = useRpc();
     const { response, setResponse } = useFormState();
-    const [tokens, setTokens] = useState([]);
+    const [tokens, setTokens] = useState<string[]>([]);
     const [loading, setLoading] = useState({
         freeze: false,
         mint: false,
         freezeAndMint: false
     });
 
-    const handleTabChange = (event, newValue) => setTabIndex(newValue);
+    const handleTabChange = (event:any, newValue:number) => setTabIndex(newValue);
 
     const formik = useFormik({
         initialValues,
         validationSchema,
         validate(values) {
-            if (formik.errors?.addresses?.length > 0 && tabIndex == 1) {
+            if(!formik.errors.addresses) return;
+           
+            if (formik.errors.addresses.length > 0 && tabIndex == 1) {
                 setTabIndex(0);
                 return
             }
@@ -63,7 +67,7 @@ const useTokenAuthority = () => {
         try {
             setLoading(prev => ({ ...prev, freezeAndMint: true }));
             
-            const tokenAuthorization = new TokenAuthorization(wallet);
+            const tokenAuthorization = new TokenAuthorization(rpcUrl,wallet as Wallet);
             tokenAuthorization.setTokens(tokens);
             const result = await tokenAuthorization.revokeFreezeAndMintAuthority();
             if (result) {
@@ -86,7 +90,7 @@ const useTokenAuthority = () => {
         try {
             setLoading(prev => ({ ...prev, freeze: true }));
 
-            const tokenAuthorization = new TokenAuthorization(wallet);
+            const tokenAuthorization = new TokenAuthorization(rpcUrl,wallet as Wallet);
             tokenAuthorization.setTokens(tokens);
             const result = await tokenAuthorization.revokeFreezeAuthority();
             if (result) {
@@ -95,7 +99,7 @@ const useTokenAuthority = () => {
                 return result;
             }
         } catch (error) {
-            alertSnackbar("error", error);
+            alertSnackbar("error", error as string);
         } finally {
             setLoading(prev => ({ ...prev, freeze: false }));
         }
@@ -108,7 +112,7 @@ const useTokenAuthority = () => {
         try {
             setLoading(prev => ({ ...prev, mint: true }));
 
-            const tokenAuthorization = new TokenAuthorization(wallet);
+            const tokenAuthorization = new TokenAuthorization(rpcUrl,wallet as Wallet);
             tokenAuthorization.setTokens(tokens);
             const result = await tokenAuthorization.revokeMintAuthority();
             if (result) {

@@ -1,22 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { Autocomplete, TextField, Box, Typography, Stack } from '@mui/material';
+import { Autocomplete, TextField, Stack } from '@mui/material';
 import { useWallet } from '@solana/wallet-adapter-react';
-import AccountManager from '@/app/AccountManager';
-import CustomCard from './CustomCard';
-import useCustomSnackbar from '@/hooks/useCustomSnackbar';
-import CustomSnackbar from './CustomSnackbar';
+import AccountManager from '@/app/AccountManager';;
 import MintInfo from './MintInfo';
-import { customColor } from '@/constants';
+import useRpc from '@/hooks/useRpc';
 
-function TokenListByOwner({ formik }) {
-    const [value, setValue] = React.useState(null);
-    const [tokens, setTokens] = useState([]);
+function TokenListByOwner({ formik }: { formik: any }) {
+    const [value, setValue] = React.useState<null | string>(null);
+    const [tokens, setTokens] = useState<string[]>([]);
     const { publicKey, wallet } = useWallet();
+    const { rpcUrl } = useRpc();
 
     const fetchTokens = async () => {
         if (!publicKey) return;
 
-        const tokens = await AccountManager.getTokens(publicKey);
+        const tokens = await AccountManager.getTokens(rpcUrl, publicKey);
 
         setTokens(tokens);
     }
@@ -31,7 +29,7 @@ function TokenListByOwner({ formik }) {
         fetchData();
 
         const cleanup = () => {
-            setValue("");
+            setValue(null);
         };
 
         if (wallet) {
@@ -47,24 +45,21 @@ function TokenListByOwner({ formik }) {
 
 
 
-    const handleChange = (event, newValue) => {
-        setValue(newValue);
-        formik.setFieldValue("tokenAddress", newValue);
-    };
-
     return (
         <Stack gap={2}>
-            {publicKey && <MintInfo publicKey={value} />}
+            {publicKey && value && <MintInfo publicKey={value} />}
             <Autocomplete
                 disablePortal
                 id="addressList"
-                size='large'
                 value={value}
                 getOptionLabel={option => option}
-                isOptionEqualToValue={(option, value) => option?.id === value?.id}
+                isOptionEqualToValue={(option, value) => option === value}
                 noOptionsText="No address Found"
                 options={tokens}
-                onChange={handleChange}
+                onChange={(e,newValue) => {
+                    setValue(newValue);
+                    formik.setFieldValue("tokenAddress", newValue);
+                }}
                 onOpen={fetchTokens}
                 disabled={!publicKey}
                 renderInput={(params) => (

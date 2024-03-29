@@ -1,4 +1,5 @@
 import { signatureLink, truncateText } from '@/helper';
+import useRpc from '@/hooks/useRpc';
 import { Box, Typography } from '@mui/material';
 import { green } from '@mui/material/colors';
 import React from 'react';
@@ -6,6 +7,7 @@ import React from 'react';
 
 
 const SignatureExplorer = ({ signature }: { signature: string }) => {
+    const { rpcMode } = useRpc();
     return (
         <Box display="flex" gap={0.3} alignItems="center" overflow="hidden">
             <Typography fontSize={14} component="span">Signature:</Typography>
@@ -14,8 +16,8 @@ const SignatureExplorer = ({ signature }: { signature: string }) => {
                 target="_blank"
                 fontSize={14}
                 color={green[500]}
-                href={signatureLink(signature)}
-                title={signatureLink(signature)}
+                href={signatureLink(rpcMode, signature)}
+                title={signatureLink(rpcMode, signature)}
                 sx={{ textDecoration: 'none', cursor: 'pointer' }}>
                 {truncateText(signature)}
             </Typography>

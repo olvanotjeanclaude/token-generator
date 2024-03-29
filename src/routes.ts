@@ -15,7 +15,11 @@ const routes = [
     {
         title: "Authority Management",
         path: "/authority-management"
-    }
+    },
+    {
+        title: "Wallet Generator",
+        path: "/wallet-generator"
+    },
 ];
 
 

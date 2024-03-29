@@ -1,10 +1,9 @@
-import { CLUSTER_URL } from "@/constants";
 import { Account, MINT_SIZE, TOKEN_PROGRAM_ID, createAssociatedTokenAccountInstruction, createInitializeMintInstruction, createMintToInstruction, createTransferInstruction, getAccount, getAssociatedTokenAddress, getAssociatedTokenAddressSync, getMinimumBalanceForRentExemptMint, getMint, getOrCreateAssociatedTokenAccount, mintTo, transfer } from "@solana/spl-token";
 import { Wallet } from "@solana/wallet-adapter-react";
 import { Connection, Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction, TransactionSignature } from "@solana/web3.js";
 import pRetry from "p-retry";
 import BaseToken from "./BaseToken";
-import Fee from "./Fee";
+import Fee from "./enumeration/Fee";
 import AccountManager from "./AccountManager";
 
 export interface IMultiSender {
@@ -20,8 +19,8 @@ interface ITokenTransfer {
 class TokenManager extends BaseToken {
     private mint: PublicKey;
 
-    constructor(mint: PublicKey, wallet: Wallet) {
-        super(wallet);
+    constructor(connectionUrl:string,mint: PublicKey, wallet: Wallet) {
+        super(connectionUrl,wallet);
         this.mint = mint;
     }
 
@@ -97,10 +96,10 @@ class TokenManager extends BaseToken {
         return signature;
     }
 
-    public async mintTo(payer: PublicKey, amount: number) {
+    public async mintTo(connectionUrl:string,payer: PublicKey, amount: number) {
         const transaction = new Transaction();
         const fromTokenAccount = await this.getAssociatedTokenAccount(payer);
-        const mintInfo = await AccountManager.getMint(this.mint.toBase58());
+        const mintInfo = await AccountManager.getMint(connectionUrl,this.mint.toBase58());
        
         transaction.add(
             createMintToInstruction(
@@ -126,57 +125,6 @@ class TokenManager extends BaseToken {
         });
 
         return signature;
-    }
-
-    async createMint(amount: number, decimals: number): Promise<Keypair> {
-        if (amount == 0) throw "Amount must be greater than zero";
-        const connection = new Connection(CLUSTER_URL);
-
-        if (!this.wallet.adapter.publicKey) throw "NO WALLET";
-
-        const lamports = await getMinimumBalanceForRentExemptMint(connection);
-        const mintKeypair = Keypair.generate();
-        const publicKey = this.wallet.adapter.publicKey;
-        const tokenATA = await getAssociatedTokenAddress(mintKeypair.publicKey, publicKey);
-
-        const transaction = new Transaction();
-
-        transaction.add(
-            SystemProgram.createAccount({
-                fromPubkey: publicKey,
-                newAccountPubkey: mintKeypair.publicKey,
-                space: MINT_SIZE,
-                lamports: lamports,
-                programId: TOKEN_PROGRAM_ID,
-            }),
-            createInitializeMintInstruction(
-                mintKeypair.publicKey,
-                decimals,
-                publicKey,
-                publicKey,
-                TOKEN_PROGRAM_ID),
-            createAssociatedTokenAccountInstruction(
-                publicKey,
-                tokenATA,
-                publicKey,
-                mintKeypair.publicKey,
-            ),
-            createMintToInstruction(
-                mintKeypair.publicKey,
-                tokenATA,
-                publicKey,
-                amount * Math.pow(10, decimals),
-            ),
-        );
-
-        const signature = await this.wallet.adapter.sendTransaction(
-            transaction,
-            connection,
-            { signers: [mintKeypair] });
-
-        // console.log({ mint: mintKeypair.publicKey.toBase58() })
-
-        return mintKeypair
     }
 
     public async sendMultiple(destinations: Array<IMultiSender>): Promise<TransactionSignature> {

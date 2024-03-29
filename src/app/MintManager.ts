@@ -5,12 +5,11 @@ import { mplCandyMachine } from "@metaplex-foundation/mpl-candy-machine";
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
 import { LAMPORTS_PER_SOL, TransactionSignature } from '@solana/web3.js';
 import "@solana/web3.js";
-import { CLUSTER_URL } from '@/constants';
 import { Wallet } from '@solana/wallet-adapter-react';
 import { walletAdapterIdentity } from "@metaplex-foundation/umi-signer-wallet-adapters";
 import NFTStorage from './NFTStorage';
 import { transferSol, addMemo, mplToolbox } from '@metaplex-foundation/mpl-toolbox';
-import Fee from './Fee';
+import Fee from './enumeration/Fee';
 import BaseToken from './BaseToken';
 
 
@@ -39,10 +38,10 @@ class MintManager extends BaseToken {
     private uri: string | null;
 
 
-    constructor(wallet: Wallet, metaData: IMetadata) {
-        super(wallet);
+    constructor(connectionUrl: string, wallet: Wallet, metaData: IMetadata) {
+        super(connectionUrl, wallet);
 
-        this.umi = createUmi(CLUSTER_URL);
+        this.umi = createUmi(this.rpcUrl);
         this.mint = generateSigner(this.umi);
         this.wallet = wallet;
         this.metadata = metaData;
@@ -85,8 +84,8 @@ class MintManager extends BaseToken {
                 amount: amount * Math.pow(10, decimals),
                 tokenStandard: TokenStandard.Fungible,
             })
-            // 23.17$ - 19.63 $
-            // 0.12552 SOL - 0.10635 
+                // 23.17$ - 19.63 $
+                // 0.12552 SOL - 0.10635 
                 // .add(transferSol(this.umi, {
                 //     destination: publicKey(this.walletFee.toBase58() as string),
                 //     amount: sol(Fee.TokenCreator)

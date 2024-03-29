@@ -6,6 +6,7 @@ import AccountManager, { TMint } from '@/app/AccountManager';
 import useFormState from '@/hooks/useFormState';
 import CustomCard from './CustomCard';
 import { signatureLink } from '@/helper';
+import useRpc from '@/hooks/useRpc';
 
 type TMintInfo = {
   publicKey: string,
@@ -14,6 +15,7 @@ type TMintInfo = {
 type ExtendedBoxProps = TMintInfo & Omit<BoxProps, "publicKey">;
 
 function Row({ label, value }: { label: string, value: string | number }) {
+  const { rpcMode } = useRpc();
   const isAuthority = label === "Mint Authority" || label === "Freeze Authority";
   return (
     <Box display="flex" flexDirection="row" alignItems="center" mb={1} overflow="hidden">
@@ -25,7 +27,7 @@ function Row({ label, value }: { label: string, value: string | number }) {
           <Typography
             target='_blank'
             component="a"
-            href={signatureLink(value as string)}
+            href={signatureLink(rpcMode, value as string)}
             color="primary"
             variant='body2'
             sx={{ textDecoration: 'none' }}>
@@ -39,8 +41,8 @@ function Row({ label, value }: { label: string, value: string | number }) {
   );
 }
 
-function MintInfo({ publicKey,...props }: ExtendedBoxProps) {
-
+function MintInfo({ publicKey, ...props }: ExtendedBoxProps) {
+  const { rpcUrl } = useRpc();
   const { isLoading, setIsLoading } = useFormState();
   const { message, alertSnackbar, snackbar, setSnackbar } = useCustomSnackbar();
   const [mint, setMint] = useState<TMint | null>(null);
@@ -50,7 +52,7 @@ function MintInfo({ publicKey,...props }: ExtendedBoxProps) {
       if (!publicKey) return;
       setIsLoading(true);
       try {
-        const data = await AccountManager.getMint(publicKey);
+        const data = await AccountManager.getMint(rpcUrl, publicKey);
         setMint(data);
       } catch (error) {
         // alertSnackbar("error", error as string);

@@ -9,14 +9,16 @@ import { ThemeProvider, createTheme } from '@mui/material';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
-import { CLUSTER_URL, customColor } from "../constants";
+import { customColor } from "../constants";
 import { useNProgressRoute } from '@/hooks/useNProgressRoute';
 import LayoutContextProvider from '@/context/LayoutContext';
+import MainContextProvider from '@/context/MainContext';
+import useRpc from '@/hooks/useRpc';
 
 export default function MyApp({ Component, pageProps }: any) {
     const theme = createTheme({
         palette: {
-            mode: 'dark', 
+            mode: 'dark',
         },
         components: {
             MuiTextField: {
@@ -34,11 +36,12 @@ export default function MyApp({ Component, pageProps }: any) {
         }
     });
 
+    const { rpcUrl } = useRpc();
+
     const wallets = useMemo(() => [
         new PhantomWalletAdapter(),
     ], []);
 
-    const endpoint = useMemo(() => CLUSTER_URL, []);
 
     useNProgressRoute();
 
@@ -46,12 +49,14 @@ export default function MyApp({ Component, pageProps }: any) {
 
     return (
         <ThemeProvider theme={theme}>
-            <ConnectionProvider endpoint={endpoint}>
+            <ConnectionProvider endpoint={rpcUrl}>
                 <WalletProvider wallets={wallets}>
                     <WalletModalProvider>
-                        <LayoutContextProvider>
-                            {getLayout(<Component {...pageProps} />)}
-                        </LayoutContextProvider>
+                        <MainContextProvider>
+                            <LayoutContextProvider>
+                                {getLayout(<Component {...pageProps} />)}
+                            </LayoutContextProvider>
+                        </MainContextProvider>
                     </WalletModalProvider>
                 </WalletProvider>
             </ConnectionProvider>

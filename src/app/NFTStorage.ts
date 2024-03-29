@@ -1,5 +1,5 @@
 import axios from "axios";
-import { IMetadata } from "./MintManger";
+import { IMetadata } from "./MintManager";
 
 class NFTStorage {
     public async upload(file: Blob): Promise<string> {

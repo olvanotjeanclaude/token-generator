@@ -6,6 +6,7 @@ import useFormState from './useFormState';
 import { Wallet, useWallet } from '@solana/wallet-adapter-react';
 import TokenManager, { IMultiSender } from '@/app/TokenManager';
 import { PublicKey } from '@solana/web3.js';
+import useRpc from './useRpc';
 
 const validationSchema = Yup.object().shape({
     senders: Yup.array().of(
@@ -32,11 +33,12 @@ const initialValues = {
     tokenAddress: ""
 };
 
-const useTokenMultiSender  = () =>{
+const useTokenMultiSender = () => {
     const [senderCount, setSenderCount] = useState(1);
     const { wallet, publicKey } = useWallet();
     const { message, setMessage, alertSnackbar, snackbar, setSnackbar } = useCustomSnackbar();
     const { response, setResponse, isLoading, setIsLoading, resetState } = useFormState();
+    const { rpcUrl } = useRpc();
 
 
     const addSender = () => {
@@ -70,12 +72,12 @@ const useTokenMultiSender  = () =>{
                     const base58Regex = /^[1-9A-HJ-NP-Za-km-z]+$/;
                     return base58Regex.test(value.address) && value.amount;
                 });
-                
+
             const uniqueAddresses = Array.from(new Set(addresses.map(value => value.address)))
 
             if (uniqueAddresses.length != addresses.length) return alertSnackbar("error", "Duplicate addresses are not allowed");
 
-    
+
             if (addresses.length == 0) {
                 setMessage({
                     type: "error",
@@ -88,7 +90,7 @@ const useTokenMultiSender  = () =>{
                 setIsLoading(true)
 
                 const mint = new PublicKey(values.tokenAddress);
-                const token = new TokenManager(mint, wallet as Wallet);
+                const token = new TokenManager(rpcUrl, mint, wallet as Wallet);
 
                 const signature = await token.sendMultiple(addresses);
 

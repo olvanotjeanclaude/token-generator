@@ -1,16 +1,18 @@
 import AccountManager from "@/app/AccountManager";
 import { useWallet } from "@solana/wallet-adapter-react";
-import React, {  useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import useRpc from "./useRpc";
 
-const useTokenListByOwner = ( formik : any) => {
+const useTokenListByOwner = (formik: any) => {
     const [value, setValue] = React.useState<null | string>(null);
     const [tokens, setTokens] = useState<string[]>([]);
     const { publicKey, wallet } = useWallet();
+    const { rpcUrl } = useRpc();
 
     const fetchTokens = async () => {
         if (!publicKey) return;
 
-        const tokens = await AccountManager.getTokens(publicKey);
+        const tokens = await AccountManager.getTokens(rpcUrl, publicKey);
 
         setTokens(tokens);
     }
@@ -41,7 +43,7 @@ const useTokenListByOwner = ( formik : any) => {
 
 
 
-    const handleChange = (event:any, newValue: string) => {
+    const handleChange = (event: any, newValue: string) => {
         setValue(newValue);
         formik.setFieldValue("tokenAddress", newValue);
     };

@@ -4,7 +4,8 @@ import { useCallback, useState } from 'react';
 import * as Yup from 'yup'
 import useCustomSnackbar from './useCustomSnackbar';
 import useFormState from './useFormState';
-import MintManager, { IMetadata } from '@/app/MintManger';
+import MintManager, { IMetadata } from '@/app/MintManager';
+import useRpc from './useRpc';
 
 const validationSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
@@ -35,12 +36,13 @@ const initialValues = {
 
 const useTokenCreator = () => {
     const { wallet, publicKey } = useWallet();
+    const { rpcUrl } = useRpc();
     const { connection } = useConnection();
     const [mint, setMint] = useState("");
     const { message, setMessage, snackbar, setSnackbar } = useCustomSnackbar();
     const { isLoading, setIsLoading, setErrors, resetState } = useFormState();
 
-    const handleSubmit = useCallback(async (values:FormikValues) => {
+    const handleSubmit = useCallback(async (values: FormikValues) => {
         try {
             if (!publicKey) {
                 setMessage({
@@ -69,7 +71,7 @@ const useTokenCreator = () => {
                 }
             };
 
-            const mintManager = new MintManager(wallet as Wallet, metadata);
+            const mintManager = new MintManager(rpcUrl, wallet as Wallet, metadata);
 
             await mintManager.uploadMetadata(values.file);
 
@@ -100,13 +102,13 @@ const useTokenCreator = () => {
         validationSchema,
         onSubmit: handleSubmit,
         validate: (values) => {
-            const errors :any= {};
+            const errors: any = {};
 
             if (!values.file) {
                 errors.file = 'Please select a file';
             }
 
-           // @ts-ignore
+            // @ts-ignore
             if (values.file && !['image/jpeg', 'image/png'].includes(values.file.type)) {
                 errors.file = 'File type must be JPEG or PNG';
             }

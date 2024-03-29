@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import Router from 'next/router';
+//@ts-ignore:
 import nProgress from 'nprogress';
 import 'nprogress/nprogress.css'
 

@@ -1,6 +1,6 @@
 import { Keypair } from "@solana/web3.js";
 import base58 from "bs58";
-import { CLUSTER } from "./constants";
+import { RpcMode } from "./app/types/Rpc";
 
 
 export function getKeypairFromPassword(secretKey: string): Keypair {
@@ -27,16 +27,27 @@ export const truncateText = (text: string, maxLength: number = 50) => {
     return `${firstPart}...${lastPart}`;
 };
 
-export function isNumeric(value: string ): boolean {
+export function isNumeric(value: string): boolean {
     return !isNaN(parseFloat(value)) && isFinite(parseFloat(value));
-}  
+}
 
-export function logger(signature:string) {
+export function logger(rpcMode: RpcMode, signature: string) {
     console.log(`Transaction Id: ${signature}`);
-    console.log(`https://explorer.solana.com/tx/${signature}?cluster=${CLUSTER}`)
+    console.log(`https://explorer.solana.com/tx/${signature}?cluster=${rpcMode}`)
 }
 
-export function signatureLink(signature:string) {
-    const path = signature.length >44 ? "tx": "address";
-    return `https://explorer.solana.com/${path}/${signature}?cluster=${CLUSTER}`;
+export function signatureLink(rpcMode: RpcMode, signature: string) {
+    const path = signature.length > 44 ? "tx" : "address";
+    return `https://explorer.solana.com/${path}/${signature}?cluster=${rpcMode}`;
 }
+
+export function generateFileName() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // Month is zero-indexed
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    return `${year}${month}${day}${hours}${minutes}${seconds}`;
+};

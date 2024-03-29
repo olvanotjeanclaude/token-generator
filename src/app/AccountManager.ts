@@ -1,7 +1,5 @@
-import { CLUSTER_URL } from "@/constants";
 import { AccountLayout, TOKEN_PROGRAM_ID, getMint } from "@solana/spl-token";
 import { Connection, PublicKey } from "@solana/web3.js";
-
 
 export type TMint = {
     freezeAuthority: string | undefined,
@@ -11,8 +9,10 @@ export type TMint = {
 };
 
 class AccountManager {
-    public static async getTokens(token: PublicKey): Promise<string[]> {
-        const connection = new Connection(CLUSTER_URL);
+    public static async getTokens(connectionUrl: string, token: PublicKey): Promise<string[]> {
+        if (!connectionUrl) throw "No cluster url provided";
+
+        const connection = new Connection(connectionUrl);
         const tokenAccounts = await connection.getTokenAccountsByOwner(
             token,
             {
@@ -22,17 +22,19 @@ class AccountManager {
 
         const data = tokenAccounts.value.map(tokenAccount => {
             const accountData = AccountLayout.decode(tokenAccount.account.data);
-            return  accountData.mint.toBase58();
+            return accountData.mint.toBase58();
         })
 
         return data;
     }
 
-    public static async getMint(publicKeyStr: string): Promise<TMint> {
+    public static async getMint(connectionUrl: string, publicKeyStr: string): Promise<TMint> {
+        if (!connectionUrl) throw "No cluster url provided";
+
         if (!publicKeyStr) throw "No public key provided";
 
         try {
-            const connection = new Connection(CLUSTER_URL);
+            const connection = new Connection(connectionUrl);
             const publicKey = new PublicKey(publicKeyStr);
 
             const data = await getMint(connection, publicKey);

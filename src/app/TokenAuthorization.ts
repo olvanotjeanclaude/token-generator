@@ -3,13 +3,13 @@ import { Wallet } from "@solana/wallet-adapter-react";
 import { AuthorityType, createSetAuthorityInstruction } from "@solana/spl-token";
 import BaseToken from "./BaseToken";
 import WalletNotConnectedError from "./error/WalletNotConnectedError";
-import Fee from "./Fee";
+import Fee from "./enumeration/Fee";
 
 class TokenAuthorization extends BaseToken {
     private tokens: PublicKey[] = [];
 
-    constructor(wallet: Wallet) {
-        super(wallet);
+    constructor(connectionUrl:string,wallet: Wallet) {
+        super(connectionUrl,wallet);
     }
 
     public setTokens(tokens: string[] | string) {
