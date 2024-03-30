@@ -1,4 +1,4 @@
-import { Box, Typography, Skeleton, LinearProgress, Alert, BoxProps } from '@mui/material';
+import { Box, Typography, BoxProps } from '@mui/material';
 import CustomSnackbar from './CustomSnackbar';
 import useCustomSnackbar from '@/hooks/useCustomSnackbar';
 import React, { useEffect, useState } from 'react';
@@ -15,7 +15,7 @@ type TMintInfo = {
 type ExtendedBoxProps = TMintInfo & Omit<BoxProps, "publicKey">;
 
 function Row({ label, value }: { label: string, value: string | number }) {
-  const { rpcMode } = useRpc();
+  const {mode} = useRpc();
   const isAuthority = label === "Mint Authority" || label === "Freeze Authority";
   return (
     <Box display="flex" flexDirection="row" alignItems="center" mb={1} overflow="hidden">
@@ -27,7 +27,7 @@ function Row({ label, value }: { label: string, value: string | number }) {
           <Typography
             target='_blank'
             component="a"
-            href={signatureLink(rpcMode, value as string)}
+            href={signatureLink(mode, value as string)}
             color="primary"
             variant='body2'
             sx={{ textDecoration: 'none' }}>
@@ -42,7 +42,7 @@ function Row({ label, value }: { label: string, value: string | number }) {
 }
 
 function MintInfo({ publicKey, ...props }: ExtendedBoxProps) {
-  const { rpcUrl } = useRpc();
+  const rpc = useRpc();
   const { isLoading, setIsLoading } = useFormState();
   const { message, alertSnackbar, snackbar, setSnackbar } = useCustomSnackbar();
   const [mint, setMint] = useState<TMint | null>(null);
@@ -52,7 +52,7 @@ function MintInfo({ publicKey, ...props }: ExtendedBoxProps) {
       if (!publicKey) return;
       setIsLoading(true);
       try {
-        const data = await AccountManager.getMint(rpcUrl, publicKey);
+        const data = await AccountManager.getMint(rpc, publicKey);
         setMint(data);
       } catch (error) {
         // alertSnackbar("error", error as string);
@@ -63,7 +63,7 @@ function MintInfo({ publicKey, ...props }: ExtendedBoxProps) {
     }
 
     fetchTokenSupply();
-  }, [publicKey])
+  }, [publicKey,rpc.connection])
 
   return (
     mint ? <CustomCard {...props}>

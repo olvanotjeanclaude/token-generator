@@ -1,12 +1,14 @@
-import useMainContext from "./useMainContext"
+import { RPC } from "@/app/types/RPC";
+import useRpcContext from "./useRpcContext";
 
-const useRpc = () => {
-    const { rpcMode, rpcUrl } = useMainContext();
-
+const useRpc = (): RPC => {
+    const { rpcMode, rpcUrl, connection } =useRpcContext()
+  
     return {
-        rpcMode,
-        rpcUrl
-    };
+        mode: rpcMode,
+        url: rpcUrl,
+        connection
+    }
 }
 
 export default useRpc;

@@ -7,7 +7,7 @@ import React from 'react';
 
 
 const SignatureExplorer = ({ signature }: { signature: string }) => {
-    const { rpcMode } = useRpc();
+    const { mode } = useRpc();
     return (
         <Box display="flex" gap={0.3} alignItems="center" overflow="hidden">
             <Typography fontSize={14} component="span">Signature:</Typography>
@@ -16,8 +16,8 @@ const SignatureExplorer = ({ signature }: { signature: string }) => {
                 target="_blank"
                 fontSize={14}
                 color={green[500]}
-                href={signatureLink(rpcMode, signature)}
-                title={signatureLink(rpcMode, signature)}
+                href={signatureLink(mode, signature)}
+                title={signatureLink(mode, signature)}
                 sx={{ textDecoration: 'none', cursor: 'pointer' }}>
                 {truncateText(signature)}
             </Typography>

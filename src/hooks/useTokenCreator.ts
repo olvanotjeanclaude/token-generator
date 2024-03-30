@@ -1,4 +1,4 @@
-import { Wallet, useConnection, useWallet } from '@solana/wallet-adapter-react';
+import { Wallet, useWallet } from '@solana/wallet-adapter-react';
 import { FormikValues, useFormik } from 'formik';
 import { useCallback, useState } from 'react';
 import * as Yup from 'yup'
@@ -36,8 +36,7 @@ const initialValues = {
 
 const useTokenCreator = () => {
     const { wallet, publicKey } = useWallet();
-    const { rpcUrl } = useRpc();
-    const { connection } = useConnection();
+    const rpc = useRpc();
     const [mint, setMint] = useState("");
     const { message, setMessage, snackbar, setSnackbar } = useCustomSnackbar();
     const { isLoading, setIsLoading, setErrors, resetState } = useFormState();
@@ -58,6 +57,7 @@ const useTokenCreator = () => {
             resetState();
 
             setIsLoading(true);
+    
 
             const metadata: IMetadata = {
                 name: values.name,
@@ -68,10 +68,11 @@ const useTokenCreator = () => {
                     twitter: values.twitter,
                     telegram: values.telegram,
                     discord: values.discord,
+                    website:values.website
                 }
             };
 
-            const mintManager = new MintManager(rpcUrl, wallet as Wallet, metadata);
+            const mintManager = new MintManager(rpc, wallet as Wallet, metadata);
 
             await mintManager.uploadMetadata(values.file);
 
@@ -94,7 +95,7 @@ const useTokenCreator = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [publicKey, wallet, connection]);
+    }, [publicKey, wallet, rpc.connection]);
 
 
     const formik = useFormik({
@@ -123,7 +124,8 @@ const useTokenCreator = () => {
         snackbar,
         setSnackbar,
         message,
-        mint
+        mint,
+        rpc
     };
 }
 

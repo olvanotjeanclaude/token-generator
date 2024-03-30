@@ -1,28 +1,26 @@
 import { Wallet } from "@solana/wallet-adapter-react";
 import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
-import { RpcMode } from "./types/Rpc";
+import { RPC } from "./types/RPC";
 
 class BaseToken {
-  protected connection: Connection;
   protected wallet: Wallet;
   protected payer: PublicKey | null = null;
   protected walletFee: PublicKey;
-  protected rpcMode: RpcMode = "devnet";
-  protected rpcUrl = clusterApiUrl("devnet");
+  protected rpc: RPC = {
+    mode: "devnet",
+    url: clusterApiUrl("devnet"),
+    connection: new Connection(clusterApiUrl("devnet"))
+  };
 
-  constructor(connectionUrl: string, wallet: Wallet) {
+  constructor(rpc: RPC, wallet: Wallet) {
     this.wallet = wallet;
-    this.connection = new Connection(connectionUrl,"confirmed");
     this.walletFee = this.settingUpWalletFee();
-    this.rpcUrl= connectionUrl;
 
     if (this.wallet?.adapter?.publicKey) {
       this.payer = this.wallet.adapter.publicKey;
     }
 
-    if(connectionUrl.includes("mainnet")){
-      this.rpcMode="mainnet";
-    }
+    this.rpc = rpc;
   }
 
   private settingUpWalletFee() {
@@ -31,8 +29,7 @@ class BaseToken {
 
     this.walletFee = new PublicKey(devFee);
 
-
-    if (this.rpcMode === "mainnet") {
+    if (this.rpc.mode === "mainnet") {
       this.walletFee = new PublicKey(mainFee);
     }
 

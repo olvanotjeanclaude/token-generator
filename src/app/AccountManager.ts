@@ -1,5 +1,6 @@
 import { AccountLayout, TOKEN_PROGRAM_ID, getMint } from "@solana/spl-token";
 import { Connection, PublicKey } from "@solana/web3.js";
+import { RPC } from "./types/RPC";
 
 export type TMint = {
     freezeAuthority: string | undefined,
@@ -9,11 +10,8 @@ export type TMint = {
 };
 
 class AccountManager {
-    public static async getTokens(connectionUrl: string, token: PublicKey): Promise<string[]> {
-        if (!connectionUrl) throw "No cluster url provided";
-
-        const connection = new Connection(connectionUrl);
-        const tokenAccounts = await connection.getTokenAccountsByOwner(
+    public static async getTokens(rpc: RPC, token: PublicKey): Promise<string[]> {        
+        const tokenAccounts = await rpc.connection.getTokenAccountsByOwner(
             token,
             {
                 programId: TOKEN_PROGRAM_ID,
@@ -28,16 +26,13 @@ class AccountManager {
         return data;
     }
 
-    public static async getMint(connectionUrl: string, publicKeyStr: string): Promise<TMint> {
-        if (!connectionUrl) throw "No cluster url provided";
-
+    public static async getMint(rpc: RPC, publicKeyStr: string): Promise<TMint> {
         if (!publicKeyStr) throw "No public key provided";
 
         try {
-            const connection = new Connection(connectionUrl);
             const publicKey = new PublicKey(publicKeyStr);
 
-            const data = await getMint(connection, publicKey);
+            const data = await getMint(rpc.connection, publicKey);
             const divisor = BigInt(Math.pow(10, data.decimals));
             const result = data.supply / divisor;
 

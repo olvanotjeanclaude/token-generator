@@ -38,7 +38,7 @@ const useTokenMultiSender = () => {
     const { wallet, publicKey } = useWallet();
     const { message, setMessage, alertSnackbar, snackbar, setSnackbar } = useCustomSnackbar();
     const { response, setResponse, isLoading, setIsLoading, resetState } = useFormState();
-    const { rpcUrl } = useRpc();
+    const rpc = useRpc();
 
 
     const addSender = () => {
@@ -90,7 +90,7 @@ const useTokenMultiSender = () => {
                 setIsLoading(true)
 
                 const mint = new PublicKey(values.tokenAddress);
-                const token = new TokenManager(rpcUrl, mint, wallet as Wallet);
+                const token = new TokenManager(rpc, mint, wallet as Wallet);
 
                 const signature = await token.sendMultiple(addresses);
 

@@ -4,12 +4,13 @@ import { AuthorityType, createSetAuthorityInstruction } from "@solana/spl-token"
 import BaseToken from "./BaseToken";
 import WalletNotConnectedError from "./error/WalletNotConnectedError";
 import Fee from "./enumeration/Fee";
+import { RPC } from "./types/RPC";
 
 class TokenAuthorization extends BaseToken {
     private tokens: PublicKey[] = [];
 
-    constructor(connectionUrl:string,wallet: Wallet) {
-        super(connectionUrl,wallet);
+    constructor(rpc: RPC, wallet: Wallet) {
+        super(rpc, wallet);
     }
 
     public setTokens(tokens: string[] | string) {
@@ -26,7 +27,7 @@ class TokenAuthorization extends BaseToken {
 
         for (const token of this.tokens) {
             try {
-                const mintInfo = await this.connection.getAccountInfo(token);
+                const mintInfo = await this.rpc.connection.getAccountInfo(token);
                 if (mintInfo) {
                     tokens.push(token);
                 }
@@ -64,7 +65,7 @@ class TokenAuthorization extends BaseToken {
                 );
             })
 
-            const signature = await this.wallet.adapter.sendTransaction(transaction, this.connection);
+            const signature = await this.wallet.adapter.sendTransaction(transaction, this.rpc.connection);
 
             return signature;
 
@@ -124,7 +125,7 @@ class TokenAuthorization extends BaseToken {
                 );
             })
 
-            const signature = await this.wallet.adapter.sendTransaction(transaction, this.connection);
+            const signature = await this.wallet.adapter.sendTransaction(transaction, this.rpc.connection);
 
             return signature;
 

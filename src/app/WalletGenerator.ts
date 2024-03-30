@@ -3,6 +3,7 @@ import { Wallet } from "@solana/wallet-adapter-react";
 import BaseToken from "./BaseToken";
 import { Keypair, LAMPORTS_PER_SOL, SystemProgram, Transaction } from "@solana/web3.js";
 import { generateFileName } from '@/helper';
+import { RPC } from './types/RPC';
 
 export type TWalletInfo = {
     publicKey: string,
@@ -10,8 +11,8 @@ export type TWalletInfo = {
 };
 
 class WalletGenerator extends BaseToken {
-    constructor(connectionUrl: string, wallet: Wallet) {
-        super(connectionUrl, wallet);
+    constructor(rpc:RPC, wallet: Wallet) {
+        super(rpc, wallet);
     }
 
     public async generateWallets(count: number) {
@@ -44,7 +45,7 @@ class WalletGenerator extends BaseToken {
 
             const signature = await this.wallet.adapter.sendTransaction(
                 transactions,
-                this.connection,
+                this.rpc.connection,
                 {
                     signers: wallets
                 });
@@ -54,7 +55,6 @@ class WalletGenerator extends BaseToken {
                 generatedWallets
             };
         } catch (error) {
-            console.log(error)
             throw "Unable to generate wallet";
         }
     }

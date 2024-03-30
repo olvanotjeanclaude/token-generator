@@ -19,7 +19,7 @@ export default function Page() {
     const { message, alertSnackbar, snackbar, setSnackbar } = useCustomSnackbar();
     const { wallet, publicKey } = useWallet();
     const [generatedWallets, setGeneratedWallets] = useState<TWalletInfo[]>([]);
-    const { rpcUrl } = useRpc();
+    const rpc = useRpc();
 
     const formik = useFormik({
         initialValues: {
@@ -37,7 +37,7 @@ export default function Page() {
                 if (!publicKey) return alertSnackbar("error", "Wallet not connected");
 
                 setGeneratedWallets([]);
-                const walletGenerator = new WalletGenerator(rpcUrl, wallet as Wallet);
+                const walletGenerator = new WalletGenerator(rpc, wallet as Wallet);
                 const { generatedWallets, signature } = await walletGenerator.generateWallets(parseInt(values.numberOfWallets));
                 setGeneratedWallets(generatedWallets);
                 setResponse(signature);

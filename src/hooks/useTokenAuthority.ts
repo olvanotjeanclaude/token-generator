@@ -27,7 +27,7 @@ const useTokenAuthority = () => {
     const [tabIndex, setTabIndex] = useState(0);
     const { wallet, publicKey } = useWallet();
     const { message, alertSnackbar, snackbar, setSnackbar } = useCustomSnackbar();
-    const {rpcUrl} = useRpc();
+    const rpc = useRpc();
     const { response, setResponse } = useFormState();
     const [tokens, setTokens] = useState<string[]>([]);
     const [loading, setLoading] = useState({
@@ -36,14 +36,14 @@ const useTokenAuthority = () => {
         freezeAndMint: false
     });
 
-    const handleTabChange = (event:any, newValue:number) => setTabIndex(newValue);
+    const handleTabChange = (event: any, newValue: number) => setTabIndex(newValue);
 
     const formik = useFormik({
         initialValues,
         validationSchema,
         validate(values) {
-            if(!formik.errors.addresses) return;
-           
+            if (!formik.errors.addresses) return;
+
             if (formik.errors.addresses.length > 0 && tabIndex == 1) {
                 setTabIndex(0);
                 return
@@ -66,8 +66,8 @@ const useTokenAuthority = () => {
 
         try {
             setLoading(prev => ({ ...prev, freezeAndMint: true }));
-            
-            const tokenAuthorization = new TokenAuthorization(rpcUrl,wallet as Wallet);
+
+            const tokenAuthorization = new TokenAuthorization(rpc, wallet as Wallet);
             tokenAuthorization.setTokens(tokens);
             const result = await tokenAuthorization.revokeFreezeAndMintAuthority();
             if (result) {
@@ -83,14 +83,14 @@ const useTokenAuthority = () => {
         return null;
     };
 
- 
+
     async function revokeFreeze() {
         if (!isFormValid()) return false;
 
         try {
             setLoading(prev => ({ ...prev, freeze: true }));
 
-            const tokenAuthorization = new TokenAuthorization(rpcUrl,wallet as Wallet);
+            const tokenAuthorization = new TokenAuthorization(rpc, wallet as Wallet);
             tokenAuthorization.setTokens(tokens);
             const result = await tokenAuthorization.revokeFreezeAuthority();
             if (result) {
@@ -112,7 +112,7 @@ const useTokenAuthority = () => {
         try {
             setLoading(prev => ({ ...prev, mint: true }));
 
-            const tokenAuthorization = new TokenAuthorization(rpcUrl,wallet as Wallet);
+            const tokenAuthorization = new TokenAuthorization(rpc, wallet as Wallet);
             tokenAuthorization.setTokens(tokens);
             const result = await tokenAuthorization.revokeMintAuthority();
             if (result) {

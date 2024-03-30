@@ -16,7 +16,7 @@ const Page = () => {
     isLoading,
     snackbar,
     setSnackbar,
-    message
+    message,
   } = useTokenCreator();
   return (
     <>

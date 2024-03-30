@@ -23,7 +23,7 @@ export default function CustomSnackbar({
                 variant="filled"
                 sx={{ width: '100%', color: "#fff" }}
             >
-                {message.text}
+                {typeof message.text=="string" ? message.text:"Unexpected error"}
             </Alert>
         </Snackbar>
 

@@ -1,8 +1,9 @@
 import { Box, Typography } from '@mui/material'
 import React from 'react'
 import MintAddressAmount from './MintAddressAmount';
+import { IMultiSender } from '@/app/TokenManager';
 
-export default function UploadedAddresses({ formik, addresses }) {
+export default function UploadedAddresses({ formik, addresses }: { formik: any, addresses: IMultiSender[] }) {
     if (addresses.length == 0) return <></>;
 
     return (
@@ -12,7 +13,7 @@ export default function UploadedAddresses({ formik, addresses }) {
             </Box>
 
 
-           <MintAddressAmount addresses={addresses} />
+            <MintAddressAmount addresses={addresses} />
         </Box>
     )
 }

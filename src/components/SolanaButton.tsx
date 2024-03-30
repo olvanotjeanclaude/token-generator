@@ -1,3 +1,4 @@
+import useRpc from '@/hooks/useRpc';
 import { Box, Typography } from '@mui/material'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { WalletDisconnectButton, WalletMultiButton } from '@solana/wallet-adapter-react-ui'
@@ -6,9 +7,9 @@ import dynamic from 'next/dynamic';
 import React, { useEffect, useState } from 'react'
 
 export default function SolanaButton() {
-    const { connection } = useConnection();
     const { publicKey, wallet, connected } = useWallet();
     const [balance, setBalance] = useState(0);
+    const { connection } = useRpc();
 
     const WalletMultiButtonDynamic = dynamic(
         async () => (await import('@solana/wallet-adapter-react-ui')).WalletMultiButton,
@@ -16,11 +17,8 @@ export default function SolanaButton() {
     );
 
     useEffect(() => {
-        if (!connection || !publicKey) {
-
-            return;
-        }
-
+        if (!connection || !publicKey) return;
+        
         connection.onAccountChange(
             publicKey,
             (updatedAccountInfo) => {
@@ -32,7 +30,7 @@ export default function SolanaButton() {
         connection.getAccountInfo(publicKey).then((info) => {
             setBalance(info?.lamports ?? 0);
         });
-    }, [connection, publicKey,wallet]);
+    }, [connection, publicKey, wallet]);
 
     return (
         <Box display="flex" alignItems="center" py={1} minWidth={190} justifyContent="end">

@@ -1,10 +1,8 @@
 import React from 'react';
-import { Autocomplete, TextField, Checkbox, Stack, Box } from '@mui/material';
+import { Autocomplete, TextField, Box } from '@mui/material';
 import useTokenListByOwner from '@/hooks/useTokenListByOwner';
 import MintInfo from '@/components/MintInfo';
 import NoWalletConnected from '@/components/NoWalletConnected';
-
-
 
 const TabTokenFromWallet = ({ formik }) => {
     const {

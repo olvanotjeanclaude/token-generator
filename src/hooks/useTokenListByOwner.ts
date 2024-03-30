@@ -7,12 +7,12 @@ const useTokenListByOwner = (formik: any) => {
     const [value, setValue] = React.useState<null | string>(null);
     const [tokens, setTokens] = useState<string[]>([]);
     const { publicKey, wallet } = useWallet();
-    const { rpcUrl } = useRpc();
+    const rpc = useRpc();
 
     const fetchTokens = async () => {
         if (!publicKey) return;
 
-        const tokens = await AccountManager.getTokens(rpcUrl, publicKey);
+        const tokens = await AccountManager.getTokens(rpc, publicKey);
 
         setTokens(tokens);
     }
@@ -39,7 +39,7 @@ const useTokenListByOwner = (formik: any) => {
                 wallet.adapter.removeListener("disconnect", cleanup);
             }
         };
-    }, [wallet, publicKey]);
+    }, [wallet, publicKey, fetchTokens]);
 
 
 

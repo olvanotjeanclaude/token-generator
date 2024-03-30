@@ -6,14 +6,13 @@ import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 require("@solana/wallet-adapter-react-ui/styles.css");
 import { ThemeProvider, createTheme } from '@mui/material';
-import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
+import {  WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { customColor } from "../constants";
 import { useNProgressRoute } from '@/hooks/useNProgressRoute';
 import LayoutContextProvider from '@/context/LayoutContext';
-import MainContextProvider from '@/context/MainContext';
-import useRpc from '@/hooks/useRpc';
+import RpcContextProvider from '@/context/RpcContext';
 
 export default function MyApp({ Component, pageProps }: any) {
     const theme = createTheme({
@@ -36,8 +35,6 @@ export default function MyApp({ Component, pageProps }: any) {
         }
     });
 
-    const { rpcUrl } = useRpc();
-
     const wallets = useMemo(() => [
         new PhantomWalletAdapter(),
     ], []);
@@ -49,17 +46,15 @@ export default function MyApp({ Component, pageProps }: any) {
 
     return (
         <ThemeProvider theme={theme}>
-            <ConnectionProvider endpoint={rpcUrl}>
-                <WalletProvider wallets={wallets}>
+            <RpcContextProvider>
+                <WalletProvider wallets={wallets} autoConnect={true}>
                     <WalletModalProvider>
-                        <MainContextProvider>
-                            <LayoutContextProvider>
-                                {getLayout(<Component {...pageProps} />)}
-                            </LayoutContextProvider>
-                        </MainContextProvider>
+                        <LayoutContextProvider>
+                            {getLayout(<Component {...pageProps} />)}
+                        </LayoutContextProvider>
                     </WalletModalProvider>
                 </WalletProvider>
-            </ConnectionProvider>
+            </RpcContextProvider>
         </ThemeProvider>
     )
 }

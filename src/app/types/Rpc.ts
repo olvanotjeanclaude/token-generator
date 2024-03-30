@@ -1,6 +1,9 @@
+import { Connection } from "@solana/web3.js";
+
 export type RpcMode = "devnet" | "testnet" | "mainnet";
 
-export type TRpc = {
-    rpcMode: RpcMode,
-    rpcUrl: string
+export type RPC = {
+    mode: RpcMode,
+    url: string,
+    connection: Connection
 };

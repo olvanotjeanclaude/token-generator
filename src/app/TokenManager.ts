@@ -1,10 +1,11 @@
-import { Account, MINT_SIZE, TOKEN_PROGRAM_ID, createAssociatedTokenAccountInstruction, createInitializeMintInstruction, createMintToInstruction, createTransferInstruction, getAccount, getAssociatedTokenAddress, getAssociatedTokenAddressSync, getMinimumBalanceForRentExemptMint, getMint, getOrCreateAssociatedTokenAccount, mintTo, transfer } from "@solana/spl-token";
+import { Account, createAssociatedTokenAccountInstruction, createMintToInstruction, createTransferInstruction, getAccount, getAssociatedTokenAddress, getAssociatedTokenAddressSync, getMinimumBalanceForRentExemptMint, getMint, getOrCreateAssociatedTokenAccount, mintTo, transfer } from "@solana/spl-token";
 import { Wallet } from "@solana/wallet-adapter-react";
-import { Connection, Keypair, LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction, TransactionSignature } from "@solana/web3.js";
+import { PublicKey, Transaction, TransactionSignature } from "@solana/web3.js";
 import pRetry from "p-retry";
 import BaseToken from "./BaseToken";
 import Fee from "./enumeration/Fee";
 import AccountManager from "./AccountManager";
+import { RPC } from "./types/RPC";
 
 export interface IMultiSender {
     address: string,
@@ -19,14 +20,14 @@ interface ITokenTransfer {
 class TokenManager extends BaseToken {
     private mint: PublicKey;
 
-    constructor(connectionUrl:string,mint: PublicKey, wallet: Wallet) {
-        super(connectionUrl,wallet);
+    constructor(rpc: RPC, mint: PublicKey, wallet: Wallet) {
+        super(rpc, wallet);
         this.mint = mint;
     }
 
 
     public getMintAccount() {
-        return getMint(this.connection, this.mint);
+        return getMint(this.rpc.connection, this.mint);
     }
 
     public async getAssociatedTokenAccount(publicKey: PublicKey) {
@@ -36,13 +37,12 @@ class TokenManager extends BaseToken {
 
         const payer = new PublicKey(this.wallet.adapter.publicKey.toBase58());
 
-
         const associatedToken = getAssociatedTokenAddressSync(
             mint,
             publicKey,
         );
 
-        return await getAccount(this.connection, associatedToken)
+        return await getAccount(this.rpc.connection, associatedToken)
             .then(res => {
                 return res;
             })
@@ -60,12 +60,12 @@ class TokenManager extends BaseToken {
 
                 const signature = await this.wallet.adapter.sendTransaction(
                     transaction,
-                    this.connection
+                    this.rpc.connection
                 );
 
                 return pRetry(async (number) => {
                     console.log(`Retrying ${number} time`)
-                    return await getAccount(this.connection, associatedToken);
+                    return await getAccount(this.rpc.connection, associatedToken);
                 }, {
                     retries: 10,
                     minTimeout: 3000
@@ -90,17 +90,17 @@ class TokenManager extends BaseToken {
 
         const signature = await this.wallet.adapter.sendTransaction(
             transaction,
-            this.connection,
+            this.rpc.connection,
         );
 
         return signature;
     }
 
-    public async mintTo(connectionUrl:string,payer: PublicKey, amount: number) {
+    public async mintTo(rpc: RPC, payer: PublicKey, amount: number) {
         const transaction = new Transaction();
         const fromTokenAccount = await this.getAssociatedTokenAccount(payer);
-        const mintInfo = await AccountManager.getMint(connectionUrl,this.mint.toBase58());
-       
+        const mintInfo = await AccountManager.getMint(rpc, this.mint.toBase58());
+
         transaction.add(
             createMintToInstruction(
                 this.mint,
@@ -117,7 +117,7 @@ class TokenManager extends BaseToken {
 
         const signature = await this.wallet.adapter.sendTransaction(
             transaction,
-            this.connection,
+            this.rpc.connection,
         ).catch(error => {
             console.log(error);
 
@@ -134,7 +134,7 @@ class TokenManager extends BaseToken {
 
         if (destinations.length === 0) throw new Error("No valid destination found");
 
-        const { value: tokenSupply } = await this.connection.getTokenSupply(this.mint);
+        const { value: tokenSupply } = await this.rpc.connection.getTokenSupply(this.mint);
 
         if (!tokenSupply) throw "No value found for the given token";
 
@@ -167,7 +167,7 @@ class TokenManager extends BaseToken {
 
             const signature = await this.wallet.adapter.sendTransaction(
                 transaction,
-                this.connection,
+                this.rpc.connection,
             );
 
             return signature;
@@ -190,7 +190,7 @@ class TokenManager extends BaseToken {
             const associatedToken = getAssociatedTokenAddressSync(mint, publicKey);
 
             try {
-                await getAccount(this.connection, associatedToken);
+                await getAccount(this.rpc.connection, associatedToken);
             } catch (error) {
                 transaction.add(
                     createAssociatedTokenAccountInstruction(
@@ -204,7 +204,7 @@ class TokenManager extends BaseToken {
         }
 
         if (transaction.instructions.length > 0) {
-            const signature = await this.wallet.adapter.sendTransaction(transaction, this.connection);
+            const signature = await this.wallet.adapter.sendTransaction(transaction, this.rpc.connection);
 
             // console.log(signature);
         }
@@ -213,7 +213,7 @@ class TokenManager extends BaseToken {
             const publicKey = new PublicKey(destination.address);
             const associatedToken = getAssociatedTokenAddressSync(mint, publicKey);
             await pRetry(async () => {
-                const account = await getAccount(this.connection, associatedToken);
+                const account = await getAccount(this.rpc.connection, associatedToken);
                 if (!account) throw new Error(`Account not found for address: ${destination.address}`);
                 transfers.push({ account, amount: destination.amount });
             }, {

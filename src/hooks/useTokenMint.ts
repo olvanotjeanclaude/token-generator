@@ -1,4 +1,4 @@
-import { Wallet, useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { Wallet, useWallet } from "@solana/wallet-adapter-react";
 import useCustomSnackbar from "./useCustomSnackbar";
 import useFormState from "./useFormState";
 import { useFormik } from "formik";
@@ -23,7 +23,7 @@ const useTokenMint = () => {
     const { wallet, publicKey } = useWallet();
     const { message, setMessage, alertSnackbar, snackbar, setSnackbar } = useCustomSnackbar();
     const { errors, setErrors, response, setResponse, isLoading, setIsLoading, resetState } = useFormState();
-    const { rpcUrl } = useRpc();
+    const rpc = useRpc();
     const formik = useFormik({
         initialValues,
         validationSchema,
@@ -37,9 +37,9 @@ const useTokenMint = () => {
 
                 const mint = new PublicKey(values.tokenAddress);
 
-                const tokenManager = new TokenManager(rpcUrl, mint, wallet as Wallet)
+                const tokenManager = new TokenManager(rpc, mint, wallet as Wallet)
 
-                const signature = await tokenManager.mintTo(rpcUrl, publicKey, parseInt(values.amount));
+                const signature = await tokenManager.mintTo(rpc, publicKey, parseInt(values.amount));
 
                 if (signature) {
                     setMessage({

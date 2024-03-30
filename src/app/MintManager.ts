@@ -11,6 +11,7 @@ import NFTStorage from './NFTStorage';
 import { transferSol, addMemo, mplToolbox } from '@metaplex-foundation/mpl-toolbox';
 import Fee from './enumeration/Fee';
 import BaseToken from './BaseToken';
+import { RPC } from './types/RPC';
 
 
 export interface IMetadata {
@@ -37,13 +38,11 @@ class MintManager extends BaseToken {
     private metadata: IMetadata;
     private uri: string | null;
 
+    constructor(rpc: RPC, wallet: Wallet, metaData: IMetadata) {
+        super(rpc, wallet);
 
-    constructor(connectionUrl: string, wallet: Wallet, metaData: IMetadata) {
-        super(connectionUrl, wallet);
-
-        this.umi = createUmi(this.rpcUrl);
+        this.umi = createUmi(this.rpc.url);
         this.mint = generateSigner(this.umi);
-        this.wallet = wallet;
         this.metadata = metaData;
         this.uri = null;
 
@@ -93,7 +92,6 @@ class MintManager extends BaseToken {
                 .sendAndConfirm(this.umi)
                 .then(() => { return this.mint.publicKey.toString() })
                 .catch(err => {
-                    console.log(err);
                     throw "Unable to create and mint. please try again latter";
                 });
 

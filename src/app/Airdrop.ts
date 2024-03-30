@@ -6,7 +6,7 @@ import {
     SystemProgram,
     sendAndConfirmTransaction,
 } from "@solana/web3.js";
-import { RpcMode } from "./types/Rpc";
+import { RpcMode } from "./types/RPC";
 
 export interface IAirdrop {
     amount: number,
@@ -14,12 +14,10 @@ export interface IAirdrop {
 }
 
 class Airdrop {
-    public static async createNewAccountAndFund(connectionUrl: string, user: Keypair, amount: number, signer: Keypair): Promise<string> {
+    public static async createNewAccountAndFund(connection: Connection, user: Keypair, amount: number, signer: Keypair): Promise<string> {
         if (!user) throw "Please provide the user keypair";
 
         const publicKey = user.publicKey;
-
-        const connection = new Connection(connectionUrl);
 
         const account = await connection.getAccountInfo(publicKey);
 
@@ -50,27 +48,23 @@ class Airdrop {
         return signature;
     }
 
-    public static async sendMultiple(connectionUrl: string, wallets: Array<IAirdrop>, signer: Keypair): Promise<void> {
+    public static async sendMultiple(connection: Connection, wallets: Array<IAirdrop>, signer: Keypair): Promise<void> {
         if (wallets.length == 0) throw "No wallet found!";
 
         try {
             wallets.forEach(async wallet => {
-                await Airdrop.createNewAccountAndFund(connectionUrl, wallet.keypair, wallet.amount, signer);
+                await Airdrop.createNewAccountAndFund(connection, wallet.keypair, wallet.amount, signer);
             });
         } catch (error) {
-            console.log(error);
             throw "Unable to send the transaction";
         }
-
     }
 
 
-    public static async send(connectionUrl: string, wallet: IAirdrop) {
+    public static async send(connection: Connection, wallet: IAirdrop) {
         if (!wallet) throw "Wallet invalid";
 
         const publicKey = wallet.keypair.publicKey;
-
-        const connection = new Connection(connectionUrl);
 
         return await connection.requestAirdrop(
             publicKey,

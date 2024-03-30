@@ -1,6 +1,8 @@
 import { Box, Stack, Typography, Button, FormHelperText } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
+import Image from 'next/image'
+
 
 export default function DropzoneForm({ formik }) {
   const [filePreview, setFilePreview] = useState(null);
@@ -54,10 +56,11 @@ export default function DropzoneForm({ formik }) {
           ) : (
 
             <Stack gap={1} alignItems="center" direction="row">
-              <img
+              <Image
                 src={filePreview.preview}
                 alt="Preview"
-                style={{ maxWidth: 110, maxHeight: 110 }}
+                width={110}
+                height={110}
               />
               <Typography variant='subtitle1' textAlign="center">Drop the files here</Typography>
             </Stack>

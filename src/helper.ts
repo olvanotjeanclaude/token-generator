@@ -1,6 +1,6 @@
 import { Keypair } from "@solana/web3.js";
 import base58 from "bs58";
-import { RpcMode } from "./app/types/Rpc";
+import { RpcMode } from "./app/types/RPC";
 
 
 export function getKeypairFromPassword(secretKey: string): Keypair {
