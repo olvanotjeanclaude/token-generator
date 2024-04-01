@@ -7,7 +7,7 @@ export const customColor = {
 
 export const config = {
     sidebar: {
-        width: 270,
+        width: 290,
         bgActive: "#16181C"
     }
 };

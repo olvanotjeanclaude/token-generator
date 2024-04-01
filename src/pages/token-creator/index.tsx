@@ -2,7 +2,7 @@ import React from 'react';
 import { TextField, Grid, Stack, Box } from '@mui/material';
 import Layout from '@/components/Layout';
 import Title from '@/components/Title';
-import DropzoneForm from '@/components/DropzoneForm';
+import TokenCreatorDropzone from '@/sections/token-creator/TokenCreatorDropzone';
 import CustomSnackbar from '@/components/CustomSnackbar';
 import LoadingButtonComponent from '@/components/LoadingButtonComponent';
 import SignatureExplorer from '@/components/SignatureExplorer';
@@ -22,7 +22,7 @@ const Page = () => {
     <>
       <Stack component="form" autoComplete='off' onSubmit={formik.handleSubmit}>
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={7}>
+          <Grid item  xs={7}>
             <TextField
               fullWidth
               id="name"
@@ -34,7 +34,7 @@ const Page = () => {
               helperText={formik.touched.name && formik.errors.name}
             />
           </Grid>
-          <Grid item xs={12} sm={5}>
+          <Grid item  xs={5}>
             <TextField
               fullWidth
               id="symbol"
@@ -77,7 +77,7 @@ const Page = () => {
                 </Stack>
               </Grid>
               <Grid item xs={12} sm={7} lg={5}>
-                <DropzoneForm formik={formik} />
+                <TokenCreatorDropzone formik={formik} />
               </Grid>
             </Grid>
           </Grid>
@@ -96,7 +96,7 @@ const Page = () => {
             />
           </Grid>
         </Grid>
-        <Grid container mt={3} spacing={2}>
+        <Grid container mt={1} spacing={2}>
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth

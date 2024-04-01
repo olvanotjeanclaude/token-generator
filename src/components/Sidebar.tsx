@@ -1,4 +1,4 @@
-import { Box, Stack, Typography } from '@mui/material'
+import { Box, Icon, Stack, Typography } from '@mui/material'
 import React from 'react'
 import Link from 'next/link';
 import routes from "@/routes";
@@ -23,43 +23,57 @@ export default function Sidebar() {
             width={`${sidebar.width}px`}
         >
             <Box p={1.8}>
-                <Typography mb={4} variant='h4'>
-                    Home
-                </Typography>
-                
-                
+                <Link href="/" style={{ textDecoration: "none", color: "#fff" }}>
+                    <Typography fontWeight={500} mt={{ xs: 8, sm: 2 }} mb={3} variant='h4'>
+                        Dapp
+                    </Typography>
+                </Link>
+
+
                 <Stack gap={.8}>
                     {
-                        routes.map(route =>query.show === 'true' || route.path !== '/wallet-generator' ?(
-                            <Link
-                                onClick={() => setIsSidebarOpen(false)}
-                                key={route.path} style={{ textDecoration: "none", color: "#fff" }}
-                                href={`${route.path}`}>
-                                <Typography
-                                    variant='body1'
-                                    p={1}
-                                    borderRadius={3}
-                                    sx={{
-                                        ...(
-                                            router.pathname == route.path ?
-                                                {
-                                                    background: sidebar.bgActive
-                                                } :
-                                                {
+                        routes.map(route => query.show === 'true' || route.path !== '/wallet-generator' ? (
+                            <Box
+                                display="flex"
+                                alignItems="center"
+                                p={1}
+                                gap={1}
+                                borderRadius={3}
+                                sx={{
+                                    ...(
+                                        router.pathname == route.path ?
+                                            {
+                                                background: sidebar.bgActive
+                                            } :
+                                            {
 
-                                                }),
-                                        transition: 'background-color 0.1s', // Smooth transition for hover effect
-                                        '&:hover': {
-                                            backgroundColor: `${sidebar.bgActive}`,
-                                        },
-                                    }}
-                                    fontWeight={500}
-                                    key={route.path}>
+                                            }),
+                                    transition: 'background-color 0.1s', // Smooth transition for hover effect
+                                    '&:hover': {
+                                        backgroundColor: `${sidebar.bgActive}`,
+                                    },
+                                }}
+                                key={route.path}>
+                                <Icon>
+                                    {route.icon}
+                                </Icon>
+                                <Link
+                                    onClick={() => setIsSidebarOpen(false)}
+                                    key={route.path} style={{
+                                         textDecoration: "none", 
+                                         width:"100%",
+                                         color: "#fff" }}
+                                    href={`${route.path}`}>
+                                    <Typography
+                                        variant='h6'
+                                        fontWeight={500}
+                                        key={route.path}>
 
-                                    {route.title}
-                                </Typography>
-                            </Link>
-                        ):null)
+                                        {route.title}
+                                    </Typography>
+                                </Link>
+                            </Box>
+                        ) : null)
                     }
                 </Stack>
             </Box>

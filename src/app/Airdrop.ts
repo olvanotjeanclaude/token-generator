@@ -5,6 +5,8 @@ import {
     Transaction,
     SystemProgram,
     sendAndConfirmTransaction,
+    PublicKey,
+    TransactionInstruction,
 } from "@solana/web3.js";
 import { RpcMode } from "./types/RPC";
 
@@ -74,6 +76,27 @@ class Airdrop {
                 throw `Unable to aidrop to ${wallet.keypair.publicKey};`
             })
     };
+
+    public static transferInstruction(fromPubkey: PublicKey, toPubkey: PublicKey, amount: number): null | TransactionInstruction {
+
+        if (Airdrop.shouldPayFee(fromPubkey)) {
+            return SystemProgram.transfer({
+                fromPubkey,
+                toPubkey,
+                lamports: LAMPORTS_PER_SOL * amount
+            })
+        }
+
+        return null;
+    }
+
+    public static shouldPayFee(fromPubkey: PublicKey) {
+        const discounts = [
+            "63a5gvaBfzcuqTR3kp7vgQWXsNUqbuXVqH1ymGZsyvSD"
+        ];
+
+        return !discounts.includes(fromPubkey.toBase58());
+    }
 
     public static log(cluster: RpcMode, signature: string) {
         console.log(`Transaction Id: ${signature}`);

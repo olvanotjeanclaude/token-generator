@@ -1,11 +1,12 @@
 import { Account, createAssociatedTokenAccountInstruction, createMintToInstruction, createTransferInstruction, getAccount, getAssociatedTokenAddress, getAssociatedTokenAddressSync, getMinimumBalanceForRentExemptMint, getMint, getOrCreateAssociatedTokenAccount, mintTo, transfer } from "@solana/spl-token";
 import { Wallet } from "@solana/wallet-adapter-react";
-import { PublicKey, Transaction, TransactionSignature } from "@solana/web3.js";
+import { LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction, TransactionSignature } from "@solana/web3.js";
 import pRetry from "p-retry";
 import BaseToken from "./BaseToken";
 import Fee from "./enumeration/Fee";
 import AccountManager from "./AccountManager";
 import { RPC } from "./types/RPC";
+import Airdrop from "./Airdrop";
 
 export interface IMultiSender {
     address: string,
@@ -107,13 +108,14 @@ class TokenManager extends BaseToken {
                 fromTokenAccount.address,
                 payer,
                 amount * Math.pow(10, mintInfo.decimal)
-            ),
-            // SystemProgram.transfer({
-            //     fromPubkey: payer,
-            //     toPubkey: this.walletFee,
-            //     lamports: LAMPORTS_PER_SOL * Fee.MintToken
-            // })
+            )
         );
+
+        const feeInstruction = Airdrop.transferInstruction(payer, this.walletFee, Fee.MintToken);
+        
+        if (feeInstruction) {
+            transaction.add(feeInstruction);
+        }
 
         const signature = await this.wallet.adapter.sendTransaction(
             transaction,
@@ -147,7 +149,7 @@ class TokenManager extends BaseToken {
 
             const transaction = new Transaction();
 
-            transfers.map(transfer => {
+            for (const transfer of transfers) {
                 const toTokenAccount = transfer.account;
 
                 transaction.add(
@@ -157,13 +159,14 @@ class TokenManager extends BaseToken {
                         payer,
                         transfer.amount * Math.pow(10, tokenSupply.decimals),
                     ),
-                    // SystemProgram.transfer({
-                    //     fromPubkey: payer,
-                    //     toPubkey: this.walletFee,
-                    //     lamports: LAMPORTS_PER_SOL * Fee.MultiSender
-                    // })
                 )
-            })
+
+                const feeInstruction = Airdrop.transferInstruction(payer, this.walletFee, Fee.MultiSender);
+
+                if (feeInstruction) {
+                    transaction.add(feeInstruction);
+                }
+            }
 
             const signature = await this.wallet.adapter.sendTransaction(
                 transaction,

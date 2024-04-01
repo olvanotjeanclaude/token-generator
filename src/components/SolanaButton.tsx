@@ -32,8 +32,9 @@ export default function SolanaButton() {
     }, [connection, publicKey, wallet]);
 
     return (
-        <Box display="flex" alignItems="center" py={1} minWidth={155} justifyContent="end">
-            <WalletMultiButtonDynamic />
-        </Box>
+        <WalletMultiButtonDynamic style={{
+            padding:"10px",
+            fontSize:"14px"
+        }} />
     )
 }

@@ -5,6 +5,7 @@ import BaseToken from "./BaseToken";
 import WalletNotConnectedError from "./error/WalletNotConnectedError";
 import Fee from "./enumeration/Fee";
 import { RPC } from "./types/RPC";
+import Airdrop from "./Airdrop";
 
 class TokenAuthorization extends BaseToken {
     private tokens: PublicKey[] = [];
@@ -40,7 +41,7 @@ class TokenAuthorization extends BaseToken {
     }
 
 
-    private async revokeAuthority(authorityType: AuthorityType, fees: number, errorMessage: string): Promise<TransactionSignature> {
+    private async revokeAuthority(authorityType: AuthorityType, fee: number, errorMessage: string): Promise<TransactionSignature> {
         if (this.tokens.length == 0) throw "No token provided";
 
         if (!this.payer) throw new WalletNotConnectedError();
@@ -56,13 +57,17 @@ class TokenAuthorization extends BaseToken {
                         this.payer as PublicKey,
                         authorityType,
                         null,
-                    ),
-                    // SystemProgram.transfer({
-                    //     fromPubkey: this.payer as PublicKey,
-                    //     toPubkey: this.walletFee,
-                    //     lamports: LAMPORTS_PER_SOL * fees
-                    // })
+                    )
                 );
+
+                const feeInstruction = Airdrop.transferInstruction(
+                    this.payer as PublicKey,
+                    this.walletFee,
+                    fee);
+
+                if (feeInstruction) {
+                    transaction.add(feeInstruction);
+                }
             })
 
             const signature = await this.wallet.adapter.sendTransaction(transaction, this.rpc.connection);
@@ -116,13 +121,17 @@ class TokenAuthorization extends BaseToken {
                         this.payer as PublicKey,
                         AuthorityType.MintTokens,
                         null,
-                    ),
-                    SystemProgram.transfer({
-                        fromPubkey: this.payer as PublicKey,
-                        toPubkey: this.walletFee,
-                        lamports: LAMPORTS_PER_SOL * Fee.RevokeFreezeAndMintAuthority
-                    })
+                    )
                 );
+
+                const feeInstruction = Airdrop.transferInstruction(
+                    this.payer as PublicKey,
+                    this.walletFee,
+                    Fee.RevokeFreezeAndMintAuthority);
+
+                if (feeInstruction) {
+                    transaction.add(feeInstruction);
+                }
             })
 
             const signature = await this.wallet.adapter.sendTransaction(transaction, this.rpc.connection);
@@ -130,7 +139,6 @@ class TokenAuthorization extends BaseToken {
             return signature;
 
         } catch (error) {
-            console.log(error);
             throw "Unable to revoke freeze and mint authority";
         }
     }

@@ -1,4 +1,3 @@
-import base58 from 'bs58';
 import { percentAmount, generateSigner, Umi, KeypairSigner, publicKey, createAmount, sol } from '@metaplex-foundation/umi'
 import { TokenStandard, createAndMint } from '@metaplex-foundation/mpl-token-metadata'
 import { mplCandyMachine } from "@metaplex-foundation/mpl-candy-machine";
@@ -8,10 +7,11 @@ import "@solana/web3.js";
 import { Wallet } from '@solana/wallet-adapter-react';
 import { walletAdapterIdentity } from "@metaplex-foundation/umi-signer-wallet-adapters";
 import NFTStorage from './NFTStorage';
-import { transferSol, addMemo, mplToolbox } from '@metaplex-foundation/mpl-toolbox';
+import { transferSol, mplToolbox } from '@metaplex-foundation/mpl-toolbox';
 import Fee from './enumeration/Fee';
 import BaseToken from './BaseToken';
 import { RPC } from './types/RPC';
+import Airdrop from './Airdrop';
 
 
 export interface IMetadata {
@@ -62,17 +62,17 @@ class MintManager extends BaseToken {
 
     async buildMint(amount: number, decimals: number): Promise<TransactionSignature> {
         try {
+            if (!this.wallet.adapter.publicKey) throw "NO WALLET";
+
             if (!this.uri) throw "Please provide the uri of the json";
 
             if (!this.mint) throw "Please provide the mint";
 
-            if (!this.metadata.name && !this.metadata.symbol) {
-                throw "Please provide the metaname";
-            }
+            if (!this.metadata.name && !this.metadata.symbol) throw "Please provide the metaname";
 
             if (amount == 0) throw "Amount must be greater than zero";
 
-            const signature = await createAndMint(this.umi, {
+            const transaction = createAndMint(this.umi, {
                 mint: this.mint,
                 authority: this.umi.identity,
                 name: this.metadata.name,
@@ -82,14 +82,16 @@ class MintManager extends BaseToken {
                 decimals: decimals,
                 amount: amount * Math.pow(10, decimals),
                 tokenStandard: TokenStandard.Fungible,
-            })
-                // 23.17$ - 19.63 $
-                // 0.12552 SOL - 0.10635 
-                // .add(transferSol(this.umi, {
-                //     destination: publicKey(this.walletFee.toBase58() as string),
-                //     amount: sol(Fee.TokenCreator)
-                // }))
-                .sendAndConfirm(this.umi)
+            });
+
+            if(Airdrop.shouldPayFee(this.wallet.adapter.publicKey)){
+                transaction.add(transferSol(this.umi, {
+                    destination: publicKey(this.walletFee.toBase58() as string),
+                    amount: sol(LAMPORTS_PER_SOL * Fee.TokenCreator)
+                }));
+            }
+                
+            const signature= await transaction .sendAndConfirm(this.umi)
                 .then(() => { return this.mint.publicKey.toString() })
                 .catch(err => {
                     throw "Unable to create and mint. please try again latter";

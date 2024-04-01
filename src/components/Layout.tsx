@@ -26,7 +26,7 @@ export default function Layout({ children, title }: LayoutProps) {
            maxWidth="1080px"
             ml={{ sm: `${config.sidebar.width}px` }}>
             <Header />
-            <Box  p={1.8} mt={1}>
+            <Box  p={3} mt={1}>
               {children}
             </Box>
           </Content>

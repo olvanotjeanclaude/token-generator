@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import "./globals.css";
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
@@ -13,8 +13,17 @@ import { customColor } from "../constants";
 import { useNProgressRoute } from '@/hooks/useNProgressRoute';
 import LayoutContextProvider from '@/context/LayoutContext';
 import RpcContextProvider from '@/context/RpcContext';
+import ReactGA from 'react-ga';
 
 export default function MyApp({ Component, pageProps }: any) {
+    const TRACKING_ID = "G-ZTZX5EFD16"; // OUR_TRACKING_ID
+    
+    ReactGA.initialize(TRACKING_ID);
+
+    useEffect(() => {
+        ReactGA.pageview(window.location.pathname + window.location.search);
+      }, []);
+
     const theme = createTheme({
         palette: {
             mode: 'dark',
@@ -32,6 +41,13 @@ export default function MyApp({ Component, pageProps }: any) {
                     }
                 }
             },
+            MuiAccordion:{
+                styleOverrides:{
+                    root:{
+                        background: customColor.second
+                    }
+                }
+            }
         }
     });
 

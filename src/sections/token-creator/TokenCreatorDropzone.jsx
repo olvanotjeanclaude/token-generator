@@ -4,7 +4,7 @@ import { useDropzone } from 'react-dropzone';
 import Image from 'next/image'
 
 
-export default function DropzoneForm({ formik }) {
+export default function TokenCreatorDropzone({ formik }) {
   const [filePreview, setFilePreview] = useState(null);
 
 
@@ -54,7 +54,7 @@ export default function DropzoneForm({ formik }) {
         {...rootProps}
       >
         <Stack>
-          <input {...getInputProps()} value={formik.values.file ?? ""} />
+          <input {...getInputProps()}  />
           {!filePreview ? (
             <Typography textAlign="center">Drag and drop an image here, or click to select an image file</Typography>
           ) : (

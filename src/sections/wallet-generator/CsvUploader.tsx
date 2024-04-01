@@ -64,7 +64,7 @@ export default function CsvUploader({ formik }: { formik: any }) {
                 {...rootProps}
             >
                 <Stack alignItems="center">
-                    <input {...getInputProps()} value={formik.values.file ?? ""} />
+                    <input {...getInputProps()} />
                     {!filePreview ? (
                         <Stack>
                             <Typography textAlign="center">

@@ -9,7 +9,7 @@ import ToggleRpcMode from './ToggleRpcMode'
 
 export default function Header() {
     const { isSidebarOpen, setIsSidebarOpen } = useLayoutContext();
-    const toggleSidebar =() =>{
+    const toggleSidebar = () => {
         setIsSidebarOpen(prev => !prev)
     }
 
@@ -19,24 +19,31 @@ export default function Header() {
             position="sticky"
             display="flex"
             top={0}
-            mr={1.8}
-            justifyContent={{xs:"space-between", sm:"end"}}
+            right={0}
             alignItems="center"
+
             bgcolor={{ xs: customColor.second, sm: "transparent" }}
         >
 
-            <Box width={config.sidebar.width}
-                display={{xs:"flex",sm:"none"}}
+            <Box
+                display={{ xs: "flex", sm: "none" }}
                 p={1}
                 // justifyContent="space-between"
                 alignItems="center"
             >
                 <IconButton
-                 onClick={toggleSidebar}>
+                    onClick={toggleSidebar}>
                     <MenuIcon sx={{ fontSize: "40px" }} />
                 </IconButton>
             </Box>
-            <Box display="flex" gap={2} alignItems="center">
+            <Box
+                display="flex"
+                justifyContent="end"
+                mr={2}
+                flexGrow={1}
+                gap={1}
+                mt={.7}
+                alignItems="center">
                 <ToggleRpcMode />
                 <SolanaButton />
             </Box>
