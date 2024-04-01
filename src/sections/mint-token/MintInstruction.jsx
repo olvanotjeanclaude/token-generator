@@ -8,36 +8,30 @@ const MintInstruction = () => {
   return (
     <Card>
       <CardContent>
-      <Typography variant='h6' color="primary">How To Use?</Typography>
+        <Typography variant='h6' color="primary">How to Use?</Typography>
         <Stack gap={1.33} pl={2} component="ol">
           <Typography component="li">
-            <strong>Connect</strong> your <strong>wallet</strong> to be able to
-            use the software.
+            First, <strong>connect your wallet</strong> to enable the software.
           </Typography>
 
           <Typography component="li">
-            Select the <strong>Token</strong> from your wallet.
+            Next, choose the <strong>token</strong> from your wallet.
           </Typography>
 
           <Typography component="li">
-            * To mint more you should use the wallet that created the Token (Authority)
+            Note: On selection, the software displays basic information for your token such as token supply, decimal, mint, and freeze authority. If the mint is represented as "-", it indicates that you cannot mint tokens. The same applies to freeze authority.
           </Typography>
 
           <Typography component="li">
-            Enter the <strong>quantity</strong> you want to mint.
-          </Typography>
-
-
-          <Typography component="li">
-            Click on <strong>Mint Token</strong> and confirm the Transaction.
+            Specify the <strong>quantity</strong> you wish to mint.
           </Typography>
 
           <Typography component="li">
-            Mint Token
+            Then, click on <strong>Mint Token</strong> and confirm the transaction.
           </Typography>
 
           <Typography component="li">
-            Wait a minute for your update.
+            Afterward, wait briefly for your update to process.
           </Typography>
         </Stack>
       </CardContent>

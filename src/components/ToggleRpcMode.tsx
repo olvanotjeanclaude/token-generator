@@ -11,6 +11,7 @@ export default function ToggleRpcMode() {
             <Button
                 color={rpcMode == "devnet" ? "secondary" : "success"}
                 title='Toggle Mode'
+                size='large'
                 onClick={() => toggleMode()}
                 variant='contained'>
                 {rpcMode}

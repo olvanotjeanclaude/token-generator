@@ -8,6 +8,7 @@ import useLayoutContext from '@/hooks/useLayoutContext';
 
 export default function Sidebar() {
     const router = useRouter();
+    const { query } = router;
     const { sidebar } = config;
 
     const { isSidebarOpen, setIsSidebarOpen } = useLayoutContext();
@@ -25,14 +26,11 @@ export default function Sidebar() {
                 <Typography mb={4} variant='h4'>
                     Home
                 </Typography>
-
-                {/* <Box display="flex" mb={4}>
-                    <SolanaButton />
-                </Box> */}
-
+                
+                
                 <Stack gap={.8}>
                     {
-                        routes.map(route => (
+                        routes.map(route =>query.show === 'true' || route.path !== '/wallet-generator' ?(
                             <Link
                                 onClick={() => setIsSidebarOpen(false)}
                                 key={route.path} style={{ textDecoration: "none", color: "#fff" }}
@@ -61,7 +59,7 @@ export default function Sidebar() {
                                     {route.title}
                                 </Typography>
                             </Link>
-                        ))
+                        ):null)
                     }
                 </Stack>
             </Box>

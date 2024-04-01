@@ -19,7 +19,7 @@ export default function Layout({ children, title }: LayoutProps) {
         <title>{title}</title>
       </Head>
 
-      <Box>
+      <Box mb={5}>
         <Box display="flex">
           <Sidebar />
           <Content

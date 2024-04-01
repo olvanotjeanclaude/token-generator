@@ -7,51 +7,47 @@ function TokenCreatorInstruction() {
   return (
     <Card>
       <CardContent>
-      <Typography variant='h6' color="primary">How To Use?</Typography>
+        <Typography variant='h6' color="primary">How to Use?</Typography>
         <Stack gap={1.33} pl={2} component="ol">
           <Typography component="li">
-            <strong>Connect</strong> your <strong>wallet</strong> to be able to
-            use the software.
+            To begin, <strong>connect your wallet</strong> to access the software.
           </Typography>
 
           <Typography component="li">
-            Enter the <strong>name</strong> of your <strong>token</strong>.
+            Next, provide the <strong>name</strong> for your <strong>token</strong>.
           </Typography>
 
           <Typography component="li">
-            Indicate the <strong>abbreviation</strong> of your SPL Token "Symbol"
-            (max. 8 letters)
+            Enter the <strong>abbreviation</strong> for your SPL Token's "Symbol" (up to 8 letters).
           </Typography>
 
           <Typography component="li">
-            Select the <strong>decimals</strong> of your token (most often 6
-            decimals).
+            Specify the <strong>decimals</strong> for your token (usually 6 or 9 decimals).
           </Typography>
 
           <Typography component="li">
-            Select the <strong>supply</strong>.
+            Choose the <strong>supply</strong> of your token.
           </Typography>
 
           <Typography component="li">
-            Upload your <strong>token image</strong> (PNG format)
+            Upload your token's <strong>image</strong> (JPEG, JPG, PNG format).
           </Typography>
 
           <Typography component="li">
-            Write the <strong>description</strong> for your <strong>Solana Token</strong>.
+            Craft a <strong>description</strong> for your <strong>Solana Token</strong>.
           </Typography>
 
           <Typography component="li">
-            Optional: Add Social links: Website, Twitter (X), Telegram and
-            Discord.
+            Optionally, include social links such as Website, Twitter, Telegram, and Discord.
           </Typography>
 
-          <Box component="li" display="flex" flexWrap="wrap">
+          <Typography component="li" display="flex" flexWrap="wrap">
             <Typography
               component={Link}
               sx={{textDecoration:"none"}}
               href="/authority-management"
               color="primary"
-            >Revoke freeze authority
+            >Revoke Freeze Authority
             </Typography>
 
             <Typography mx={1}>and</Typography>
@@ -61,12 +57,12 @@ function TokenCreatorInstruction() {
               sx={{textDecoration:"none"}}
               href="/authority-management"
               color="primary"
-            >Revoke Mint authority
+            >Revoke Mint Authority
             </Typography>
-          </Box>
+          </Typography>
 
           <Typography component="li">
-            <strong>Click</strong> on "Generate Token" and <strong>accept</strong> the <strong>transaction</strong>.
+            Finally, <strong>click</strong> "Generate Token" and <strong>confirm</strong> the <strong>transaction</strong>.
           </Typography>
         </Stack>
       </CardContent>

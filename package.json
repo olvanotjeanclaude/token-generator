@@ -24,6 +24,7 @@
     "@solana/wallet-adapter-react-ui": "^0.9.35",
     "@solana/wallet-adapter-wallets": "^0.19.32",
     "@solana/web3.js": "^1.91.1",
+    "@types/papaparse": "^5.3.14",
     "axios": "^1.6.8",
     "cborg": "^4.1.2",
     "formik": "^2.4.5",

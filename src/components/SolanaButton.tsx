@@ -1,7 +1,6 @@
 import useRpc from '@/hooks/useRpc';
-import { Box, Typography } from '@mui/material'
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { WalletDisconnectButton, WalletMultiButton } from '@solana/wallet-adapter-react-ui'
+import { Box } from '@mui/material'
+import {  useWallet } from '@solana/wallet-adapter-react';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import dynamic from 'next/dynamic';
 import React, { useEffect, useState } from 'react'
@@ -33,7 +32,7 @@ export default function SolanaButton() {
     }, [connection, publicKey, wallet]);
 
     return (
-        <Box display="flex" alignItems="center" py={1} minWidth={190} justifyContent="end">
+        <Box display="flex" alignItems="center" py={1} minWidth={155} justifyContent="end">
             <WalletMultiButtonDynamic />
         </Box>
     )

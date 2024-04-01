@@ -1,62 +1,20 @@
 import base58 from 'bs58';
 import { Wallet } from "@solana/wallet-adapter-react";
 import BaseToken from "./BaseToken";
-import { Keypair, LAMPORTS_PER_SOL, SystemProgram, Transaction } from "@solana/web3.js";
-import { generateFileName } from '@/helper';
+import { Keypair, LAMPORTS_PER_SOL, SystemProgram, Transaction, sendAndConfirmTransaction } from "@solana/web3.js";
+import { generateFileName, getKeypairFromPassword } from '@/helper';
 import { RPC } from './types/RPC';
+import Airdrop from './Airdrop';
 
 export type TWalletInfo = {
     publicKey: string,
-    secretKey: string
+    secretKey: string,
+    amount: number
 };
 
 class WalletGenerator extends BaseToken {
     constructor(rpc:RPC, wallet: Wallet) {
         super(rpc, wallet);
-    }
-
-    public async generateWallets(count: number) {
-        if (count == 0) throw "Number of wallet  must be greater than 0";
-
-        if (!this.payer) throw "Wallet not connected";
-
-        try {
-            const wallets = Array.from({ length: count }).map(() => Keypair.generate());
-            const generatedWallets: TWalletInfo[] = [];
-
-            const transactions = new Transaction();
-
-            for (const wallet of wallets) {
-                generatedWallets.push({
-                    publicKey: wallet.publicKey.toBase58(),
-                    secretKey: base58.encode(wallet.secretKey)
-                });
-
-                transactions.add(
-                    SystemProgram.createAccount({
-                        fromPubkey: this.payer,
-                        newAccountPubkey: wallet.publicKey,
-                        lamports: 0,
-                        space: 0,
-                        programId: SystemProgram.programId,
-                    })
-                )
-            }
-
-            const signature = await this.wallet.adapter.sendTransaction(
-                transactions,
-                this.rpc.connection,
-                {
-                    signers: wallets
-                });
-
-            return {
-                signature,
-                generatedWallets
-            };
-        } catch (error) {
-            throw "Unable to generate wallet";
-        }
     }
 
     public downloadJson(jsonData: object) {

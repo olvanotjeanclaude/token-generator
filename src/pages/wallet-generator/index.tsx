@@ -4,46 +4,85 @@ import CustomSnackbar from '@/components/CustomSnackbar';
 import Layout from '@/components/Layout'
 import LoadingButtonComponent from '@/components/LoadingButtonComponent';
 import Title from '@/components/Title';
-import { truncateText } from '@/helper';
+import { getKeypairFromPassword, signatureLink, truncateText } from '@/helper';
+import base58 from 'bs58';
 import useCustomSnackbar from '@/hooks/useCustomSnackbar';
 import useFormState from '@/hooks/useFormState';
 import useRpc from '@/hooks/useRpc';
-import { Box, Grid, Stack, TextField, Typography } from '@mui/material'
+import { Box, Chip, Grid, LinearProgress, Stack, TextField, Typography } from '@mui/material'
 import { Wallet, useWallet } from '@solana/wallet-adapter-react';
+import { Keypair } from '@solana/web3.js';
 import { useFormik } from 'formik';
 import React, { useState } from 'react'
 import * as Yup from "yup";
+import Airdrop from '@/app/Airdrop';
+import CsvUploader from '@/sections/wallet-generator/CsvUploader';
 
 export default function Page() {
-    const { isLoading, setIsLoading, response, setResponse } = useFormState();
-    const { message, alertSnackbar, snackbar, setSnackbar } = useCustomSnackbar();
-    const { wallet, publicKey } = useWallet();
-    const [generatedWallets, setGeneratedWallets] = useState<TWalletInfo[]>([]);
     const rpc = useRpc();
+    const { isLoading, setIsLoading } = useFormState();
+    const { message, alertSnackbar, snackbar, setSnackbar } = useCustomSnackbar();
+    const [generatedWallets, setGeneratedWallets] = useState<TWalletInfo[]>([]);
 
     const formik = useFormik({
         initialValues: {
-            numberOfWallets: '',
+            amounts: [],
+            secretKey: ""
         },
         validationSchema: Yup.object().shape({
-            numberOfWallets: Yup.number()
-                .required('Number of wallets is required')
-                .integer('Number of wallets must be an integer')
-                .min(1, 'Number of wallets must be at least 1')
-            // .max(10, 'Number of wallets cannot exceed 10'),
+            secretKey: Yup.string()
+                .required('Enter the secret key of wallet signer'),
+            amounts: Yup.array().of(
+                Yup.number()
+            ).min(1, 'At least one amount is required'),
         }),
         onSubmit: async (values) => {
             try {
-                if (!publicKey) return alertSnackbar("error", "Wallet not connected");
-
                 setGeneratedWallets([]);
-                const walletGenerator = new WalletGenerator(rpc, wallet as Wallet);
-                const { generatedWallets, signature } = await walletGenerator.generateWallets(parseInt(values.numberOfWallets));
-                setGeneratedWallets(generatedWallets);
-                setResponse(signature);
 
-            } catch (error) {
-                alertSnackbar("error", error as string);
+                setIsLoading(true);
+
+                const wallets = values.amounts.map(amount => {
+                    const wallet = Keypair.generate();
+
+                    return {
+                        wallet,
+                        amount
+                    };
+                })
+
+
+
+
+                for (const current of wallets) {
+                    const generated = {
+                        publicKey: current.wallet.publicKey.toBase58(),
+                        secretKey: base58.encode(current.wallet.secretKey),
+                        amount: current.amount
+                    };
+
+                    await Airdrop.createNewAccountAndFund(
+                        rpc.connection,
+                        current.wallet,
+                        current.amount,
+                        getKeypairFromPassword(values.secretKey)
+                    )
+
+                    setGeneratedWallets(prev => ([generated, ...prev]))
+                }
+
+            } catch (err) {
+                if (typeof err === 'string') {
+                    alertSnackbar("error", err);
+                } else if (err && typeof err === 'object' && 'message' in err && typeof err.message === 'string') {
+                    alertSnackbar("error", err.message);
+                } else {
+                    alertSnackbar("error", "An unknown error occurred");
+                }
+
+            }
+            finally {
+                setIsLoading(false);
             }
         },
     });
@@ -51,26 +90,28 @@ export default function Page() {
     return (
         <Layout title="Wallet Generator">
             <Title title='Wallet Generator' />
-            <Grid container>
-                <Grid item xs={12} sm={6}>
+            <Grid container spacing={3}>
+                <Grid item xs={12} md={8}>
                     <Stack
                         component="form"
                         alignItems="center"
+                        gap={2}
                         onSubmit={formik.handleSubmit}
                         autoComplete='off'>
                         <TextField
-                            type='number'
+                            type='text'
                             fullWidth
-                            id="numberOfWallets"
-                            label="Number of Wallets"
-                            name="numberOfWallets"
+                            id="secretKey"
+                            label="Secret key of wallet signer"
+                            name="secretKey"
                             autoComplete="off"
                             onChange={formik.handleChange}
                             onBlur={formik.handleBlur}
-                            value={formik.values.numberOfWallets}
-                            error={formik.touched.numberOfWallets && Boolean(formik.errors.numberOfWallets)}
-                            helperText={formik.touched.numberOfWallets && formik.errors.numberOfWallets}
+                            value={formik.values.secretKey}
+                            error={formik.touched.secretKey && Boolean(formik.errors.secretKey)}
+                            helperText={formik.touched.secretKey && formik.errors.secretKey}
                         />
+
                         <Box>
                             <LoadingButtonComponent
                                 sx={{ mt: 2 }}
@@ -80,21 +121,29 @@ export default function Page() {
                         </Box>
                     </Stack>
 
-                    <Box mt={5}>
+                    {generatedWallets.length > 0 && <Box mt={3} overflow="auto">
+                        {isLoading && <LinearProgress color='success' sx={{ my: 2 }} />}
                         {
                             generatedWallets.map((wallet, index) => (
                                 <CustomCard p={.5} mt={.5} key={index}>
-                                    <Typography color="primary" variant='caption'>
-                                        {wallet.publicKey}
+                                    <Typography
+                                        color="primary"
+                                        variant='caption'
+                                        component="a"
+                                        target="_blank"
+                                        fontSize={14}
+                                        href={signatureLink(rpc.mode, wallet.publicKey)}
+                                        title={signatureLink(rpc.mode, wallet.publicKey)}
+                                        sx={{ textDecoration: 'none', cursor: 'pointer' }}>
+                                        {index + 1} | {truncateText(wallet.publicKey)} <Chip size='small' label={`${wallet.amount} SOL`} />
                                     </Typography>
                                 </CustomCard>
                             ))
                         }
-                    </Box>
+                    </Box>}
                 </Grid>
-
-                <Grid item xs={12} sm={5}>
-
+                <Grid item xs={12} md={4}>
+                    <CsvUploader formik={formik} />
                 </Grid>
             </Grid>
             <CustomSnackbar

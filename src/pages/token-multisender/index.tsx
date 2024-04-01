@@ -9,6 +9,7 @@ import SignatureExplorer from '@/components/SignatureExplorer';
 import TokenListByOwner from '@/components/TokenListByOwner';
 import LoadingButtonComponent from '@/components/LoadingButtonComponent';
 import useTokenMultiSender from '@/hooks/useTokenMultiSender';
+import TokenMultiSenderInstruction from '@/sections/token-multisender/TokenMultiSenderInstruction';
 
 const Page = () => {
    const {
@@ -28,7 +29,7 @@ const Page = () => {
             <Title title="Token Multi Sender" />
 
             <Grid container>
-                <Grid item xs={12} lg={9}>
+                <Grid item xs={12} lg={7}>
                     <TokenListByOwner formik={formik} />
 
                     <Grid container mt={1.5} spacing={2}>
@@ -93,12 +94,12 @@ const Page = () => {
                         </Button>
                     </Box>
 
-                    <UploadedAddresses formik={formik} addresses={formik.values.addresses} />
+                    <UploadedAddresses formik={formik} />
 
                     {response && <SignatureExplorer signature={response} />}
                 </Grid>
 
-                <Grid item xs={12} lg={3}>
+                <Grid item xs={12} lg={5}>
                     <Stack px={3} mt={{ xs: 2, lg: 0 }} spacing={2}>
                         <Stack gap={2} flexWrap="wrap" direction={{ xs: "row", lg: "column" }} justifyContent="center">
 
@@ -106,7 +107,10 @@ const Page = () => {
                                 <LoadingButtonComponent color='success' label="Start Transfer" isLoading={isLoading} />
                             </Box>
                         </Stack>
+                        
                         <MultiSenderForm formik={formik} />
+
+                        <TokenMultiSenderInstruction />
                     </Stack>
                 </Grid>
             </Grid>

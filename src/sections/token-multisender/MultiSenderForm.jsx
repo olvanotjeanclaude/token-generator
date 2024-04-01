@@ -69,8 +69,6 @@ export default function MultiSenderForm({ formik }) {
         {...rootProps}
       >
         <Stack alignItems="center">
-
-
           <input {...getInputProps()} value={formik.values.file ?? ""} />
           {!filePreview ? (
             <Stack>

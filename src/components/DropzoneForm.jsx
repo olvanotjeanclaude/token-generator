@@ -12,6 +12,10 @@ export default function DropzoneForm({ formik }) {
     accept: {
       'image/*': ['.jpeg', '.jpg', '.png'],
     },
+    onFileDialogCancel() {
+      formik.setFieldValue("file", "");
+      setFilePreview(null)
+  },
     onDrop: (acceptedFiles) => {
       if (acceptedFiles.length === 1) {
         const file = acceptedFiles[0];
@@ -25,7 +29,7 @@ export default function DropzoneForm({ formik }) {
         formik.setFieldError("file", ""); // Clear any previous error
       } else {
         // Show error message or handle multiple files
-        console.error('Please select only one image file.');
+    
         formik.setFieldError("file", "Please select only one image file.");
       }
     }
@@ -50,7 +54,7 @@ export default function DropzoneForm({ formik }) {
         {...rootProps}
       >
         <Stack>
-          <input {...getInputProps()} value={formik.values.file ?? ""} type='image/*' />
+          <input {...getInputProps()} value={formik.values.file ?? ""} />
           {!filePreview ? (
             <Typography textAlign="center">Drag and drop an image here, or click to select an image file</Typography>
           ) : (
@@ -67,9 +71,9 @@ export default function DropzoneForm({ formik }) {
 
           )}
         </Stack>
-        <br />
-        <FormHelperText sx={{textAlign:"center"}} error={!!formik.errors.file}>{formik.errors.file}</FormHelperText>
       </Box>
+
+      <FormHelperText sx={{textAlign:"center"}} error={!!formik.errors.file}>{formik.errors.file}</FormHelperText>
     </>
   );
 }

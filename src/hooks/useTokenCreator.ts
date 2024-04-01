@@ -23,7 +23,7 @@ const validationSchema = Yup.object().shape({
 const initialValues = {
     name: '',
     symbol: '',
-    decimal: '',
+    decimal: '9',
     supply: '',
     description: '',
     website: '',

@@ -39,7 +39,7 @@ const useTokenListByOwner = (formik: any) => {
                 wallet.adapter.removeListener("disconnect", cleanup);
             }
         };
-    }, [wallet, publicKey, fetchTokens]);
+    }, [wallet, publicKey]);
 
 
 
