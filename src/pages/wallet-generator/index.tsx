@@ -9,7 +9,7 @@ import base58 from 'bs58';
 import useCustomSnackbar from '@/hooks/useCustomSnackbar';
 import useFormState from '@/hooks/useFormState';
 import useRpc from '@/hooks/useRpc';
-import { Box, Chip, Grid, LinearProgress, Stack, TextField, Typography } from '@mui/material'
+import { Box, Button, Chip, Grid, LinearProgress, Stack, TextField, Typography } from '@mui/material'
 import { Wallet, useWallet } from '@solana/wallet-adapter-react';
 import { Keypair } from '@solana/web3.js';
 import { useFormik } from 'formik';
@@ -50,9 +50,6 @@ export default function Page() {
                         amount
                     };
                 })
-
-
-
 
                 for (const current of wallets) {
                     const generated = {
@@ -122,7 +119,11 @@ export default function Page() {
                     </Stack>
 
                     {generatedWallets.length > 0 && <Box mt={3} overflow="auto">
+                        <pre>
+                            {JSON.stringify(generatedWallets)}
+                        </pre>
                         {isLoading && <LinearProgress color='success' sx={{ my: 2 }} />}
+
                         {
                             generatedWallets.map((wallet, index) => (
                                 <CustomCard p={.5} mt={.5} key={index}>
