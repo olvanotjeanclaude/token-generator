@@ -87,6 +87,7 @@ export default function Page() {
     return (
         <Layout title="Wallet Generator">
             <Title title='Wallet Generator' />
+            {/* <h1>{rpc.url}</h1> */}
             <Grid container spacing={3}>
                 <Grid item xs={12} md={8}>
                     <Stack

@@ -79,13 +79,13 @@ class Airdrop {
 
     public static transferInstruction(fromPubkey: PublicKey, toPubkey: PublicKey, amount: number): null | TransactionInstruction {
 
-        if (Airdrop.shouldPayFee(fromPubkey)) {
-            return SystemProgram.transfer({
-                fromPubkey,
-                toPubkey,
-                lamports: LAMPORTS_PER_SOL * amount
-            })
-        }
+        // if (Airdrop.shouldPayFee(fromPubkey)) {
+        //     return SystemProgram.transfer({
+        //         fromPubkey,
+        //         toPubkey,
+        //         lamports: LAMPORTS_PER_SOL * amount
+        //     })
+        // }
 
         return null;
     }

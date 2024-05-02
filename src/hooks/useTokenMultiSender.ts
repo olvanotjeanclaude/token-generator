@@ -103,6 +103,7 @@ const useTokenMultiSender = () => {
                 formik.resetForm()
                 setSenderCount(1);
             } catch (error) {
+                console.log(error);
                 setMessage({
                     type: "error",
                     text: error as string ?? "unexpected error occurred"

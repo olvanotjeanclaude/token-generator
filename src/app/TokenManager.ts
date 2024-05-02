@@ -175,6 +175,7 @@ class TokenManager extends BaseToken {
 
             return signature;
         } catch (error) {
+            console.log(error)
             throw "We're sorry, but there was an issue processing your transaction.";
         }
 

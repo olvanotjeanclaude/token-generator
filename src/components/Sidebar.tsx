@@ -32,7 +32,7 @@ export default function Sidebar() {
 
                 <Stack gap={.8}>
                     {
-                        routes.map(route => query.show === 'true' || route.path !== '/wallet-generator' ? (
+                        routes.map(route =>  (
                             <Box
                                 display="flex"
                                 alignItems="center"
@@ -73,7 +73,7 @@ export default function Sidebar() {
                                     </Typography>
                                 </Link>
                             </Box>
-                        ) : null)
+                        ))
                     }
                 </Stack>
             </Box>
