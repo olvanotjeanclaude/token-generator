@@ -23,7 +23,6 @@ export default function Layout({ children, title }: LayoutProps) {
         <Box display="flex">
           <Sidebar />
           <Content
-           maxWidth="1080px"
             ml={{ sm: `${config.sidebar.width}px` }}>
             <Header />
             <Box  p={3} mt={1}>

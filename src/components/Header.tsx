@@ -6,9 +6,11 @@ import { config, customColor } from '@/constants'
 import MenuIcon from '@mui/icons-material/Menu';
 import useLayoutContext from '@/hooks/useLayoutContext'
 import ToggleRpcMode from './ToggleRpcMode'
+import useRpc from '@/hooks/useRpc'
 
 export default function Header() {
     const { isSidebarOpen, setIsSidebarOpen } = useLayoutContext();
+    const {url} = useRpc();
     const toggleSidebar = () => {
         setIsSidebarOpen(prev => !prev)
     }
@@ -44,6 +46,7 @@ export default function Header() {
                 gap={1}
                 mt={.7}
                 alignItems="center">
+                    {/* <span>{url}</span> */}
                 <ToggleRpcMode />
                 <SolanaButton />
             </Box>
