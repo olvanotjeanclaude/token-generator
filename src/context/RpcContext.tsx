@@ -35,8 +35,8 @@ export default function RpcContextProvider({ children }: { children: React.React
     }
     else {
       const url = `https://mainnet.helius-rpc.com/?api-key=${process.env.NEXT_PUBLIC_HELIUS}`;
-      // setRpcUrl("https://api.mainnet-beta.solana.com");
-      setRpcUrl(url);
+      setRpcUrl("https://api.mainnet-beta.solana.com");
+      // setRpcUrl("https://small-necessary-ensemble.solana-mainnet.quiknode.pro/542cc1b58fe1f90e479bba0c94f96e52ef1f2857/");
       setConnection(new Connection(url))
     }
   },[rpcMode]);

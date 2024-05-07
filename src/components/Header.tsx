@@ -46,7 +46,7 @@ export default function Header() {
                 gap={1}
                 mt={.7}
                 alignItems="center">
-                    {/* <span>{url}</span> */}
+                    <span>{url}</span>
                 <ToggleRpcMode />
                 <SolanaButton />
             </Box>
