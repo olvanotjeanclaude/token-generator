@@ -9,6 +9,7 @@ import SignatureExplorer from '@/components/SignatureExplorer';
 import useTokenMint from '@/hooks/useTokenMint';
 import MintInstruction from '@/sections/mint-token/MintInstruction';
 import NoWalletConnected from '@/components/NoWalletConnected';
+import SetAuthority from '@/sections/mint-token/SetAuthority';
 
 const TokenMintForm = () => {
   const {
@@ -50,6 +51,8 @@ const TokenMintForm = () => {
 
         {response && <SignatureExplorer signature={response} />}
       </form>
+
+      <SetAuthority tokenAddress={formik.values.tokenAddress} />
 
       <CustomSnackbar
         open={snackbar}

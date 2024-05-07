@@ -1,6 +1,6 @@
 import { LAMPORTS_PER_SOL, PublicKey, SystemProgram, Transaction, TransactionSignature } from "@solana/web3.js";
 import { Wallet } from "@solana/wallet-adapter-react";
-import { AuthorityType, createSetAuthorityInstruction } from "@solana/spl-token";
+import { AuthorityType, createSetAuthorityInstruction, setAuthority } from "@solana/spl-token";
 import BaseToken from "./BaseToken";
 import WalletNotConnectedError from "./error/WalletNotConnectedError";
 import Fee from "./enumeration/Fee";
@@ -140,6 +140,30 @@ class TokenAuthorization extends BaseToken {
 
         } catch (error) {
             throw "Unable to revoke freeze and mint authority";
+        }
+    }
+
+    public async transferMintAuthority(token: PublicKey,destination: PublicKey){
+        if (!this.payer) throw new WalletNotConnectedError();
+        
+        const transaction = new Transaction();
+       
+        try {
+            
+            transaction.add(
+                createSetAuthorityInstruction(
+                    token,
+                    this.payer as PublicKey,
+                    AuthorityType.MintTokens,
+                    destination,
+                ),
+            );
+    
+            const signature = await this.wallet.adapter.sendTransaction(transaction, this.rpc.connection);
+                console.log(signature);
+            return signature;
+        } catch (error) {
+              throw "Unable to transfert mint authority";
         }
     }
 }
